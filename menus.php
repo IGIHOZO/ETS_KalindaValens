@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
     <a class="navbar-brand" href="index.html">Attendance   |   ETS KALINDA Valens</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,37 +14,40 @@
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
           <a class="nav-link" href="hr.php">
-            <i class="fa fa-fw fa-dashboard"></i>
-            <span class="nav-link-text">Dashboard</span>
-          </a>
-        </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Overall Report">
-          <a class="nav-link" href="report.php">
-            <i class="fa fa-fw fa-area-chart"></i>
-            <span class="nav-link-text">Overall Report</span>
-          </a>
-        </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Overall Report">
-          <a class="nav-link" href="missed.php">
-            <i class="fa fa-fw fa-area-chart"></i>
-            <span class="nav-link-text">Missed</span>
-          </a>
-        </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
-          <a class="nav-link" href="print.php">
-            <i class="fa fa-fw fa-area-chart"></i>
-            <span class="nav-link-text">Print Card</span>
+          <i class="fa fa-fw fa-users"></i>
+            <span class="nav-link-text">Workers</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
           <a class="nav-link" href="print_qr.php">
-            <i class="fa fa-fw fa-area-chart"></i>
-            <span class="nav-link-text">Print QR</span>
+          <i class="fa fa-fw fa-user"></i>
+
+            <span class="nav-link-text">Staffs</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Overall Report">
+          <a class="nav-link" href="missed.php">
+          <i class="fa fa-fw fa-user-times"></i>
+
+            <span class="nav-link-text">Missed</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Overall Report">
+          <a class="nav-link" href="report.php">
+          <i class="fa fa-fw fa-calendar"></i>
+            <span class="nav-link-text">Attendance Report</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
+          <a class="nav-link" href="print.php">
+          <i class="fa fa-fw fa-print"></i>
+            <span class="nav-link-text">Print Card</span>
+          </a>
+        </li>
+
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
           <a class="nav-link" href="cards.php">
-            <i class="fa fa-fw fa-area-chart"></i>
+          <i class="fa fa-fw fa-th"></i>
             <span class="nav-link-text">Cards</span>
           </a>
         </li>
@@ -97,3 +101,4 @@
       </ul>
     </div>
   </nav>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" integrity="sha384-kJyUNMO9rHs9Wx2lCkP6U+Qibw4IoPIi3XhWq25K3uoxO5oUpHg94eVZN57NJKCq" crossorigin="anonymous"></script>
