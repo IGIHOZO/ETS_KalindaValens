@@ -1,14 +1,18 @@
 <?php
-require('main/view.php'); 
-if (@$_SESSION['utb_att_position']!='HR') {
-  ?>
-<script type="text/javascript">
-       // window.location="login.php";
-</script>
-  <?php
-}
+session_start();
+@require('main/view.php'); 
 $MainView = new MainView();
 
+
+if ($MainView->StaffPositionName()!='Receptionist') {
+  ?>
+<script type="text/javascript">
+       window.location="login.php";
+</script>
+
+  <?php
+  echo "Session: ".$MainView->StaffPositionName();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -163,7 +167,7 @@ require("menus.php");
         <li class="breadcrumb-item">
           <a href="#">Home</a>
         </li>
-        <li class="breadcrumb-item active">My Dashboard</li>
+        <li class="breadcrumb-item active">My Overall Report</li>
         </li><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1>
 
       </ol>
@@ -191,7 +195,7 @@ require("menus.php");
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-list"></i>
               </div>
-              <div class="mr-5">0 Todays Leaves!</div>
+              <div class="mr-5">0 Todays's Early Risers!</div>
             </div>
             <a class="card-footer text-white clearfix small z-1" href="#">
               <span class="float-left">View Details</span>
@@ -254,8 +258,8 @@ require("menus.php");
               <label style="font-weight: bolder;" for="#att_categry"> Emplyee Category: </label>
               <select class="form-control" id="att_categry">
                 <option value="">Select Category</option>
-                <option value="0">Administrative Staff</option>
-                <option value="1">Teaching Staff</option>
+                <option value="0">Right Arrivers</option>
+                <option value="1">Early Risers</option>
               </select>
             </div>
             <div class="col-2">

@@ -12,40 +12,40 @@
             <span class="nav-link-text">Dashboard</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="hr.php">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Workers">
+          <a class="nav-link" href="workers.php">
           <i class="fa fa-fw fa-users"></i>
             <span class="nav-link-text">Workers</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
-          <a class="nav-link" href="print_qr.php">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Staffs">
+          <a class="nav-link" href="staff.php">
           <i class="fa fa-fw fa-user"></i>
 
             <span class="nav-link-text">Staffs</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Overall Report">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Missed">
           <a class="nav-link" href="missed.php">
           <i class="fa fa-fw fa-user-times"></i>
 
             <span class="nav-link-text">Missed</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Overall Report">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="ttendance Report">
           <a class="nav-link" href="report.php">
           <i class="fa fa-fw fa-calendar"></i>
             <span class="nav-link-text">Attendance Report</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Print Card">
           <a class="nav-link" href="print.php">
           <i class="fa fa-fw fa-print"></i>
             <span class="nav-link-text">Print Card</span>
           </a>
         </li>
 
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cards">
           <a class="nav-link" href="cards.php">
           <i class="fa fa-fw fa-th"></i>
             <span class="nav-link-text">Cards</span>

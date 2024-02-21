@@ -11,10 +11,16 @@ class DbConnectt
 {
 
     private $host='localhost';
-    private $dbName = 'seveeen_web';
-    private $user = 'root';
-    private $pass = '';
-    public $conn;
+    private $dbName = 'mpjusdko_seveeen_web';
+    private $user = 'mpjusdko';
+    private $pass = 'z0HpWFx1%@48';
+
+
+    // private $host='localhost';
+    // private $dbName = 'seveeen_web';
+    // private $user = 'root';
+    // private $pass = '';
+    // public $conn;
 
 
 
@@ -1287,7 +1293,7 @@ public function saveLeaveRange($range)
     $user = $_SESSION['utb_att_user_id'];
     $con = parent::connect();
     $ins = $con->prepare("INSERT INTO leave_range(RangeDetails,UserId) VALUES('$range','$user')");
-    $$ok = $ins->execute();
+    $ok = $ins->execute();
     if ($ok) {
         echo "success";
     }else{

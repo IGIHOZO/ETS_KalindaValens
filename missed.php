@@ -1,14 +1,18 @@
 <?php
-require('main/view.php'); 
-if (@$_SESSION['utb_att_position']!='HR') {
-  ?>
-<script type="text/javascript">
-        window.location="login.php";
-</script>
-  <?php
-}
+session_start();
+@require('main/view.php'); 
 $MainView = new MainView();
 
+
+if ($MainView->StaffPositionName()!='Receptionist') {
+  ?>
+<script type="text/javascript">
+       window.location="login.php";
+</script>
+
+  <?php
+  echo "Session: ".$MainView->StaffPositionName();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

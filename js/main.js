@@ -1,45 +1,34 @@
-//================== LOGIN 
-$("#login").click(function(){
-  $("#login").val("Loading ...");
+$("#login").click(function () {
+  // Change button text to "Loading..." during the AJAX request
+  $("#login").prop("disabled", true).html("Loading...");
+
   var email = document.getElementById('exampleInputEmail1').value;
   var password = document.getElementById('exampleInputPassword1').value;
   var login = true;
-    $.ajax({url:"main/main.php",
-    type:"GET",data:{
-      login:login,email:email,password:password
-    },cache:false,success:function(res){
-      $("#login").val("Login");
-      if (res=='success-reception') {
-        window.location="reception.php";
-      }else if (res=='success-hr') {
-        window.location="hr.php";
-        // $("#respp").html(res);
-        $("#respp").html("<span style='color:green;font-weight:bold'>Login Successfully, Redirecting ...</span>");
-      }else if (res=='success-vc') {
-        window.location="vc.php";
-        // $("#respp").html(res);
-        $("#respp").html("<span style='color:green;font-weight:bold'>Login Successfully, Redirecting ...</span>");
-      }else if (res=='success-dvca') {
-        window.location="dvca.php";
-        // $("#respp").html(res);
-        $("#respp").html("<span style='color:green;font-weight:bold'>Login Successfully, Redirecting ...</span>");
-      }else if (res=='success-dvcpaf') {
-        window.location="dvcpaf.php";
-        // $("#respp").html(res);
-        $("#respp").html("<span style='color:green;font-weight:bold'>Login Successfully, Redirecting ...</span>");
-      }else if (res=='success-supervisor') {
-        window.location="supervisor.php";
-        // $("#respp").html(res);
-        $("#respp").html("<span style='color:green;font-weight:bold'>Login Successfully, Redirecting ...</span>");
-      }else if (res=='Employee') {
-        window.location="employee.php";
-        $("#respp").html("<span style='color:green;font-weight:bold'>Login Successfully, Redirecting ...</span>");
-      }else{
+
+  $.ajax({
+    url: "main/main.php",
+    type: "GET",
+    data: {
+      login: login,
+      email: email,
+      password: password
+    },
+    cache: false,
+    success: function (res) {
+      // Revert button text after the AJAX request completes
+      $("#login").prop("disabled", false).html("Login");
+
+      if (res == 'success-reception') {
+        window.location = "reception.php";
+      } else {
         $("#respp").html("<span style='color:red;'>Wrong email or password ...</span>");
       }
     }
-    });
+  });
 });
+
+
 
 //================== Save Card 
 $("#savelfid").click(function(){

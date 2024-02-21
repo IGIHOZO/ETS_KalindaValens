@@ -1,6 +1,6 @@
 <?php
-// header('location:../admin/admin_panel/attend/');
-require('main/view.php'); 
+session_start();
+@require('main/view.php'); 
 $MainView = new MainView();
 
 
@@ -185,7 +185,7 @@ require("menus.php");
     <script src="js/sb-admin-charts.min.js"></script>
     <script src="js/main.js"></script>
 <script>
-  $("#sidenavToggler").click();
+  // $("#sidenavToggler").click();
 function startTime() {
   const today = new Date();
   let h = today.getHours();

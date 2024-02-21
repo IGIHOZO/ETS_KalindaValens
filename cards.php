@@ -1,7 +1,8 @@
 <?php
-// header('location:../admin/admin_panel/attend/');
-require('main/view.php'); 
+session_start();
+@require('main/view.php'); 
 $MainView = new MainView();
+
 
 if ($MainView->StaffPositionName()!='Receptionist') {
   ?>
@@ -68,6 +69,7 @@ require("menus.php");
         </li><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1>
 
       </ol>
+      <h1>COMMING SOON</h1>
       <!-- Icon Cards-->
       <div class="row">
         <div class="col-xl-12 col-sm-12 mb-12">
@@ -76,7 +78,7 @@ require("menus.php");
 
       </div>
 
-
+  
 
     </div>
 

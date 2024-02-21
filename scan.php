@@ -1,6 +1,6 @@
 <?php
-// header('location:../admin/admin_panel/attend/');
-require('main/view.php'); 
+session_start();
+@require('main/view.php'); 
 $MainView = new MainView();
 
 
