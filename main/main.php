@@ -5,22 +5,21 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 date_default_timezone_set('Africa/Kigali');
 
-// require("drive/config.php");
-// $MyFunctions = new MyFunctions();
+
 class DbConnectt
 {
 
-    private $host='localhost';
-    private $dbName = 'mpjusdko_seveeen_web';
-    private $user = 'mpjusdko';
-    private $pass = 'z0HpWFx1%@48';
-
-
     // private $host='localhost';
-    // private $dbName = 'seveeen_web';
-    // private $user = 'root';
-    // private $pass = '';
-    // public $conn;
+    // private $dbName = 'mpjusdko_seveeen_web';
+    // private $user = 'mpjusdko';
+    // private $pass = 'z0HpWFx1%@48';
+
+
+    private $host='localhost';
+    private $dbName = 'seveeen_web';
+    private $user = 'root';
+    private $pass = '';
+    public $conn;
 
 
 

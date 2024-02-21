@@ -1,14 +1,14 @@
       <?php
     // session_start();
 
-    $dbname = 'mpjusdko_seveeen_web';
-    $user = 'mpjusdko';
-    $pass = 'z0HpWFx1%@48';
+    // $dbname = 'mpjusdko_seveeen_web';
+    // $user = 'mpjusdko';
+    // $pass = 'z0HpWFx1%@48';
 
 
-    // $dbname = 'seveeen_web';
-    // $user = 'root';
-    // $pass = '';
+    $dbname = 'seveeen_web';
+    $user = 'root';
+    $pass = '';
 
 
 
@@ -16,18 +16,18 @@
     
 class DbConnect
 {
-    private $host='localhost';
-    private $dbName = 'mpjusdko_seveeen_web';
-    private $user = 'mpjusdko';
-    private $pass = 'z0HpWFx1%@48';
-
-
-
     // private $host='localhost';
-    // private $dbName = 'seveeen_web';
-    // private $user = 'root';
-    // private $pass = '';
-    // public $conn; 
+    // private $dbName = 'mpjusdko_seveeen_web';
+    // private $user = 'mpjusdko';
+    // private $pass = 'z0HpWFx1%@48';
+
+
+
+    private $host='localhost';
+    private $dbName = 'seveeen_web';
+    private $user = 'root';
+    private $pass = '';
+    public $conn; 
 
 
     public function connect()
@@ -1068,12 +1068,11 @@ public function StaffPositionName()        //===================================
 public function WorkerSupervisor($userId)        //==================================== staff Position name
 {
   $con = parent::connect();
-  $user = $_SESSION['worker_id'];
-  $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.supervisor='$userId'");
+  $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$userId'");
   $sel->execute();
   if ($sel->rowCount()>=1) {
     $posData = $sel->fetch(PDO::FETCH_ASSOC);
-    $all = strtoupper($posData['worker_fname']).'  '.$posData['worker_fname'];
+    $all = strtoupper($posData['worker_fname']).'  '.$posData['worker_lname'];
   }else{
     $all = '-';
   }
@@ -1083,7 +1082,6 @@ public function WorkerSupervisor($userId)        //=============================
 public function WorkerCategory($user)        //==================================== display worker category
 {
   $con = parent::connect();
-//   $user = $_SESSION['worker_id'];
   $sel = $con->prepare("SELECT ets_workers_category.* FROM ets_workers_category,ets_workers WHERE ets_workers_category.category_id=ets_workers.worker_category 
   AND ets_workers.worker_id='$user'");
   $sel->execute();
@@ -1099,7 +1097,6 @@ public function WorkerCategory($user)        //=================================
 public function WorkerPositionName($user)        //==================================== worker Position name
 {
   $con = parent::connect();
-  $user = $_SESSION['worker_id'];
   $sel = $con->prepare("SELECT ets_staff_position.* FROM ets_staff_position,ets_workers WHERE ets_staff_position.PositionID=ets_workers.worker_position 
   AND ets_workers.worker_id='$user'");
   $sel->execute();
@@ -1112,6 +1109,14 @@ public function WorkerPositionName($user)        //=============================
   return $all;
 }
 
+public function ageFromDate($dob)       //==================================== return age from date
+{
+    $today = new DateTime();
+    $birthdate = new DateTime($dob);
+    $age = $today->diff($birthdate)->y;
+
+    return $age;
+}
 
 
 

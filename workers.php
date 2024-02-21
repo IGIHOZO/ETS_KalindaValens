@@ -25,6 +25,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $phone = $_POST["phone"];
         $nid = $_POST["nid"];
         $supervisor = $_POST["supervisor"];
+        $bank = $_POST['bank'];
+        $banknumber = $_POST['banknumber'];
+        $dob = $_POST['dob'];
+        $gender = $_POST['gender'];
+
+        
 
         // File upload handling
         $ppicture = uploadImage();
@@ -44,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Save data to the database
-        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor);
+        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender);
 
         // Output a message or redirect after processing
         // echo "Form submitted successfully!";
@@ -111,7 +117,7 @@ function generateRandomUniqueId($con) {
     return $uniqueId;
 }
 
-function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor) {
+function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender) {
     try {
         // Validate and sanitize input parameters
         $fname = filter_var($fname, FILTER_SANITIZE_STRING);
@@ -120,10 +126,14 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $nid = filter_var($nid, FILTER_SANITIZE_STRING);
         $ppicture = filter_var($ppicture, FILTER_SANITIZE_STRING);
         $supervisor = filter_var($supervisor, FILTER_SANITIZE_STRING);
+        $bank = filter_var($bank, FILTER_SANITIZE_STRING);
+        $banknumber = filter_var($banknumber, FILTER_SANITIZE_STRING);
+        $dob = filter_var($dob, FILTER_SANITIZE_STRING);
+        $gender = filter_var($gender, FILTER_SANITIZE_STRING);
 
         // Perform the SQL query to insert data into the database
-        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, supervisor, worker_category, worker_unid)
-              VALUES (:fname, :lname, :phone, :nid, :ppicture, :supervisor, :worker_category, :worker_unid)";
+        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, supervisor, worker_category, worker_unid, Bank, BankNumber, DoB, Gender)
+              VALUES (:fname, :lname, :phone, :nid, :ppicture, :supervisor, :worker_category, :worker_unid, :Bank, :BankNumber, :DoB, :Gender)";
         $worker_category = 3;
 
         // Generate a random unique ID
@@ -138,6 +148,10 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $stmt->bindParam(':supervisor', $supervisor);
         $stmt->bindParam(':worker_category', $worker_category);
         $stmt->bindParam(':worker_unid', $worker_unid);
+        $stmt->bindParam(':Bank', $bank);
+        $stmt->bindParam(':BankNumber', $banknumber);
+        $stmt->bindParam(':DoB', $dob);
+        $stmt->bindParam(':Gender', $gender);
 
         // Execute the insert query
         $ok_in = $stmt->execute();
@@ -210,56 +224,119 @@ require("menus.php");
           <a href="#">Home</a>
         </li>
         <li class="breadcrumb-item active">Add new Worker</li>
-        <!-- </li><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1> -->
-
       </ol>
       <!-- Icon Cards-->
       <form method="post" action="" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="First Name" aria-label="First Name" name="fname" aria-describedby="basic-addon1" required>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3 row">
+                        <label for="fname" class="col-sm-4 col-form-label font-weight-bold">First Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="First Name" name="fname" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="lname" class="col-sm-4 col-form-label font-weight-bold">Last Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="Last Name" name="lname" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="phone" class="col-sm-4 col-form-label font-weight-bold">Phone:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="078......." name="phone" maxlength="10" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="nid" class="col-sm-4 col-form-label font-weight-bold">NID:</label>
+                        <div class="col-sm-8">
+                            <input type="number" class="form-control" placeholder="(16 characters)" name="nid" maxlength="16" required>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Last Name" aria-label="Last Name" name="lname" aria-describedby="basic-addon1" required>
+
+                <div class="col-md-4">
+                    <div class="mb-3 row">
+                        <label for="ppicture" class="col-sm-4 col-form-label font-weight-bold">Picture:</label>
+                        <div class="col-sm-8">
+                            <input type="file" class="form-control" name="ppicture" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="bankaccount" class="col-sm-4 col-form-label font-weight-bold">Bank:</label>
+                        <div class="col-sm-8">
+                            <select name="bank" class="form-control" required>
+                                <option value="">Select Bank Account</option>
+                                <?php
+                                $sel_super = $con->prepare("SELECT * FROM ets_banks WHERE ets_banks.BankStatus=1");
+                                $sel_super->execute();
+                                if ($sel_super->rowCount() >= 1) {
+                                    while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
+                                        $usr_id = $ft_super['BankID'];
+                                        echo "<option value='" . $usr_id . "'>" . $ft_super['BankName'] . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="banknumber" class="col-sm-4 col-form-label font-weight-bold">Account:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="Bank Account Number" name="banknumber" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="supervisor" class="col-sm-4 col-form-label font-weight-bold">Supervisor:</label>
+                        <div class="col-sm-8">
+                            <select name="supervisor" class="form-control" required>
+                                <option value="">Select Supervisor</option>
+                                <?php
+                                $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers,ets_workertocapitor WHERE 
+                                ets_workertocapitor.SuperVisor=ets_workers.worker_id AND ets_workers.worker_status=1");
+                                $sel_super->execute();
+                                if ($sel_super->rowCount() >= 1) {
+                                    while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
+                                        $usr_id = $ft_super['worker_id'];
+                                        echo "<option value='" . $usr_id . "'>" . $ft_super['worker_fname'] . " " . $ft_super['worker_lname'] . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Phone (078....)" aria-label="Phone" name="phone" aria-describedby="basic-addon2" maxlength="10" required>
-                </div>
-                <div class="input-group mb-3">
-                    <input type="number" class="form-control" placeholder="NID" aria-label="NID" name="nid" aria-describedby="basic-addon2" maxlength="16" required>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" placeholder="Profile Picture" aria-label="Profile Picture" name="ppicture" aria-describedby="basic-addon3">
-                </div>
-                <div class="input-group mb-3">
-                    <select name="supervisor" class="form-control">
-                        <option value=""> Select Supervisor</option>
-                        <?php
-                        $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers,ets_workertocapitor WHERE 
-                        ets_workertocapitor.SuperVisor=ets_workers.worker_id AND ets_workers.worker_status=1");
-                        $sel_super->execute();
-                        if ($sel_super->rowCount()>=1) {
-                            while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
-                              $usr_id = $ft_super['worker_id'];
-                                echo "<option value='".$usr_id."'>".$ft_super['worker_fname']." ".$ft_super['worker_lname']."</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <button type="submit" name="reg_worker" class="btn btn-success">Submit</button>
+
+                <div class="col-md-4">
+                    <div class="mb-3 row">
+                        <label for="dob" class="col-sm-4 col-form-label font-weight-bold">Birth:</label>
+                        <div class="col-sm-8">
+                            <input type="date" class="form-control" name="dob" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="gender" class="col-sm-4 col-form-label font-weight-bold">Gender:</label>
+                        <div class="col-sm-8">
+                            <select name="gender" id="gender" class="form-control" required>
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col-sm-8 offset-sm-4">
+                            <button type="submit" name="reg_worker" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
+      </form>
+
+
+
+
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
@@ -276,10 +353,12 @@ require("menus.php");
                   <th>UNIQUE-ID</th>
                   <th>Category</th>
                   <th>Supervisor</th>
+                  <th>Age</th>
+                  <th>Gender</th>
                 </tr>
               </thead>
               <?php 
-              $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_category=3 AND ets_workers.worker_status=1");
+              $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_category=3 AND ets_workers.worker_status=1 ORDER BY ets_workers.worker_id DESC");
               $sel->execute();
               if ($sel->rowCount()>=1) {
                 $cnt = 1;
@@ -292,7 +371,9 @@ require("menus.php");
                     <td>   <?=$ft_se['worker_phone']?>  </td>
                     <td>   <?=$ft_se['worker_unid']?>  </td>
                     <td>   <?=$MainView->WorkerCategory($ft_se['worker_id'])?>  </td>
-                    <td>   <?=$MainView->WorkerSupervisor($ft_se['worker_id'])?>  </td>
+                    <td>   <?=$MainView->WorkerSupervisor($ft_se['supervisor'])?>  </td>
+                    <td>   <?=$MainView->ageFromDate($ft_se['DoB'])?>  </td>
+                    <td>   <?=$ft_se['Gender']?>  </td>
                   </tr>
                   <?php
                   $cnt++;
@@ -314,6 +395,8 @@ require("menus.php");
                   <th>UNIQUE-ID</th>
                   <th>Category</th>
                   <th>Supervisor</th>
+                  <th>Age</th>
+                  <th>Gender</th>
                 </tr>
               </tfoot>
               <tbody>
@@ -390,7 +473,7 @@ function ExportToExcel(type, fn, dl) {
        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
        return dl ?
          XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
-         XLSX.writeFile(wb, fn || ('DailyAttendance.' + (type || 'xlsx')));
+         XLSX.writeFile(wb, fn || ('WorkersReport.' + (type || 'xlsx')));
     }
 
     document.addEventListener('keydown', function (e) {
