@@ -27,9 +27,9 @@
     .container {
       display: flex;
       align-items: center;
-      justify-content: flex-start; /* Align login to the left */
-      height: 100%;
-    }
+      justify-content: center;
+      height: 100vh; /* Adjusted height to 100vh */
+      }
 
     .card-login {
       max-width: 400px;
@@ -124,7 +124,7 @@
       <div class="card-body">
         <form>
           <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
+            <label for="exampleInputEmail1">Username</label>
             <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="Enter email">
           </div>
           <div class="form-group">
@@ -145,10 +145,7 @@
         </div>
       </div>
     </div>
-    <div class="brand-logo">
-      <img src="img/cathlg.png" alt="Brand Logo" style="height:320px!important">
-      <div class="brand-text">Smart Employees Work-Load/Attendance Management System</div>
-    </div>
+
   </div>
   <!-- Bootstrap core JavaScript-->
   <script src="vendor/jquery/jquery.min.js"></script>

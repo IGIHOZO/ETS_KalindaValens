@@ -112,38 +112,38 @@ class MainView extends DbConnect
     }
     function all_cards(){
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM attendance_users");
+        $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_status=1");
         $sel->execute();
         while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
-            $user_id = $ft_sel['UserId'];
-            $user_photo = $user_id;
+            $user_id = $ft_sel['worker_id'];
+            $user_photo = $ft_sel['worker_photo'];
 ?> 
 <center>
     <table>
         <tr>
-            <td><button class="btn btn-primary" id="download<?=$user_photo?>" onclick="return downloadimage('imageDIV<?=$user_photo?>','<?=$ft_sel['Names']?>','card')">Download Card</button><hr></td>
-            <!-- <td><button class="btn btn-secondary" onclick="return downloadimage('qrImg<?=$user_photo?>','<?=$ft_sel['Names']?>','qqr');">Download QR</button><hr></td> -->
+            <td><button class="btn btn-primary" id="download<?=$user_photo?>" onclick="return downloadimage('imageDIV<?=$user_photo?>','<?=$ft_sel['worker_fname']?>','card')">Download Card</button><hr></td>
+            <!-- <td><button class="btn btn-secondary" onclick="return downloadimage('qrImg<?=$user_photo?>','<?=$ft_sel['worker_fname']?>','qqr');">Download QR</button><hr></td> -->
         </tr>
         <tr>
             <td>
                 <div style="display: none;" id="previewImage<?=$user_photo?>"></div>
                 <div id="imageDIV<?=$user_photo?>" style="width: 500px;background-image: url('img/card.jpg');background-repeat: no-repeat;background-size: 100%;float: left;">
                     <center>
-                        <img src="img/users/<?=$user_photo?>.jpg" style="width: 188px;height: 200px;margin-top: 41.5%;margin-left: -20px;">
+                        <img src="<?=$user_photo?>" style="width: 188px;height: 200px;margin-top: 41.5%;margin-left: -20px;">
                     </center>
-                    <h3 style="margin-top: 13%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px;"><?=$ft_sel['Names']?></h3>
-                    <h3 style="margin-top: 4%;font-weight: bold;color: #fff;text-align: left;margin-left: 30%;font-size: 20px"><?=$ft_sel['Position']?></h3>
-                    <h3 style="margin-top: 3%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px">0<?=$ft_sel['Phone']?></h3>
-                    <h3 style="margin-top: 3%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px"><?=$ft_sel['Email']?></h3>
-                    <h3 style="margin-top: 3%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px">UTB-<?=$filled_int = sprintf("%04d", $ft_sel['UserId']) ?></h3>
+                    <h3 style="margin-top: 13%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px;"><?=$ft_sel['worker_fname']?></h3>
+                    <h3 style="margin-top: 4%;font-weight: bold;color: #fff;text-align: left;margin-left: 30%;font-size: 20px"><?=$ft_sel['worker_phone']?></h3>
+                    <h3 style="margin-top: 3%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px">0<?=$ft_sel['worker_phone']?></h3>
+                    <h3 style="margin-top: 3%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px"><?=$ft_sel['worker_phone']?></h3>
+                    <h3 style="margin-top: 3%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 20px">UTB-<?=$filled_int = sprintf("%04d", $ft_sel['worker_id']) ?></h3>
                 </div>
             </td>
             <td><?php 
 
-                $vv = "https://utb.ac.rw/attendance/scan.php?content=".$ft_sel['UserId'];
+                $vv = "https://utb.ac.rw/attendance/scan.php?content=".$ft_sel['worker_id'];
             ?>
                 <div id="qrImg<?=$user_photo?>" style="background-color: white;width: 500px;background-repeat: no-repeat;background-size: 100%;float: right;">
-                    <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?=$vv?>&choe=UTF-8" filename="<?=$ft_sel['Names']?>.png" basename="<?=$ft_sel['Names']?>" name='<?=$ft_sel['Names']?>' id='<?=$ft_sel['Names']?>'/>
+                    <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?=$vv?>&choe=UTF-8" filename="<?=$ft_sel['worker_fname']?>.png" basename="<?=$ft_sel['worker_fname']?>" name='<?=$ft_sel['worker_fname']?>' id='<?=$ft_sel['worker_fname']?>'/>
                         <!-- <img src="img/users/<?=$user_photo?>.jpg" style="width: 188px;height: 200px;margin-top: 41.5%;margin-left: -20px;"> -->
 
                 </div>

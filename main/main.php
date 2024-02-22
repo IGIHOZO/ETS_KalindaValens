@@ -1,10 +1,13 @@
 <?php
-session_start();
+// session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 date_default_timezone_set('Africa/Kigali');
 
+require("view.php");
+
+$MainView = new MainView();
 
 class DbConnectt
 {
@@ -135,8 +138,10 @@ You are therefore requested to keep time.');
     =
     http_build_query
     ($data);
-    $username="utb"; 
-    $password="utb.tech";
+    // $username="utb"; 
+    // $password="utb.tech";
+        $username="ewsewew"; 
+    $password="utb.wewewe";
     $ch
     =
     curl_init();
@@ -200,7 +205,7 @@ class MainOpoerations extends DbConnectt
             $_SESSION['worker_id'] = $ft_reg['worker_id'];
             switch ($ft_reg['category_name']) {
                 case 'Staff':
-                    echo "success-reception";
+                    print("success-reception");
                     break;
                 default:
                     echo "$email";
@@ -235,16 +240,23 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
             $TimeStatus = "<h1 style='color:red;font-weight:bolder'>You're Late</h1>";
           }
         $con = parent::connect();
-        $user = $con->prepare("SELECT * FROM attendance_users WHERE attendance_users.UserId='$user_id' OR attendance_users.Lfid='$user_id'");
+        $user = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$user_id' OR ets_workers.worker_unid='$user_id'");
         $user->execute();
         if ($user->rowCount()==1) {
             $ft_user = $user->fetch(PDO::FETCH_ASSOC);
-            $dept = $ft_user['Class'];
-            $attender = $ft_user['UserId'];
-            $passport = '../img/users/'.$attender.'.jpg';
+            $MainView = new MainView();
+            if($MainView->WorkerPositionName($ft_user['worker_id'])=='-' && $ft_user['worker_category']==3){
+                $position = 'Digger';
+            }else{
+                $position = $MainView->WorkerPositionName($ft_user['worker_id']);
+            }
+            $dept = $ft_user['worker_id'];
+            $attender = $ft_user['worker_id'];
+            $attender_photo = $ft_user['worker_photo'];
+            $passport = $attender_photo;
             // $passport = '../img/users/1.jpg';
 
-            $firstname = strtok($ft_user['Names'], ' ');
+            $firstname = strtoupper($ft_user['worker_fname']);
             $staff_dept = "";
             switch ($dept) {
                 case 0:
@@ -255,8 +267,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                     $staff_dept = "Teaching Staff";
                     break;
             }
-        // $sel_att = $con->prepare("SELECT * FROM attendance_records,attendance_users WHERE attendance_users.UserId=attendance_records.RecordUser AND (attendance_records.RecordUser='54545' OR attendance_users.Lfid='54545') AND CAST(attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE)");
-        $sel_att = $con->prepare("SELECT * FROM attendance_records,attendance_users WHERE attendance_users.UserId=attendance_records.RecordUser AND (attendance_records.RecordUser='$user_id' OR attendance_users.Lfid='$user_id') AND CAST(attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE)");
+        $sel_att = $con->prepare("SELECT * FROM ets_attendance_records,ets_workers WHERE ets_workers.worker_id=ets_attendance_records.RecordUser AND (ets_attendance_records.RecordUser='$user_id' OR ets_workers.worker_unid='$user_id') AND CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE)");
         $sel_att->execute();
         $time_now = (int)date('H');
         if ($sel_att->rowCount()>=1) {
@@ -297,8 +308,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 break;
             case 'IN':
                 $noww = date('Y-m-d H:i:s');
-                // $ins = $con->prepare("INSERT INTO attendance_records(RecordUser,RecordTime) VALUES('0','$noww')");
-                $ins = $con->prepare("INSERT INTO attendance_records(RecordUser,RecordTime) VALUES('$attender','$noww')");
+                $ins = $con->prepare("INSERT INTO ets_attendance_records(RecordUser,RecordTime) VALUES('$attender','$noww')");
 
                 $ok_ins = $ins->execute();
                 if ($ok_ins) {
@@ -317,7 +327,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                                             <span style="float:left;"><?=$TimeStatus;?></span>
                                         </td> -->
                                         <td>
-                                            <b style="color:#7df;font-size:30px;font-weight:bolder;"><?=$ft_user['Position']?></b>
+                                            <b style="color:#7df;font-size:30px;font-weight:bolder;"><?=$position?></b>
                                         </td>
                                         <td>
                                             <h1 style="font-size:100px;font-weight:bolder;color: #000;">IN </h1>
@@ -375,7 +385,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 break;
             case 'OUT':
                 $noww = date('Y-m-d H:i:s');
-                $ins = $con->prepare("INSERT INTO attendance_records(RecordUser,RecordTime) VALUES('$attender','$noww')");
+                $ins = $con->prepare("INSERT INTO ets_attendance_records(RecordUser,RecordTime) VALUES('$attender','$noww')");
                 $ok_ins = $ins->execute();
                 if ($ok_ins) {
                     ?><script type="text/javascript">
@@ -389,7 +399,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                                 <table>
                                     <tr>
                                         <td>
-                                            <b style="color:#7df;font-size:30px;font-weight:bolder;"><?=$ft_user['Position']?></b>
+                                            <b style="color:#7df;font-size:30px;font-weight:bolder;"><?=$position?></b>
                                         </td>
                                         <td>
                                             <h1 style="font-size:100px;font-weight:bolder;color: #000;">OUT </h1>
@@ -408,7 +418,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                         <?php
                                 if (file_exists($passport)) {
                                      ?>
-                                      <!-- <img src="img/users/<?=$attender.'.jpg'?>" style="height: 220px;width:180px;border-radius:20%;float:right;margin-left:50px"> -->
+                                      <!-- <img src="img/users/<?=$attender_photo?>" style="height: 220px;width:180px;border-radius:20%;float:right;margin-left:50px"> -->
                                      <?php
                                    }else{
                                        ?>
@@ -1336,6 +1346,7 @@ if (isset($_GET['login'])) {
     $MainOpoerations->login($_GET['email'],$_GET['password']);
 }elseif (isset($_GET['scan_card'])) {
     $MainOpoerations->scan_card($_GET['content']);
+    // echo"<script>alert('Hello')</script>";
 }elseif (isset($_GET['print_card'])) {
     $MainOpoerations->print_card($_GET['contenttt']);
 }elseif (isset($_GET['print_qr'])) {

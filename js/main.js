@@ -20,7 +20,7 @@ $("#login").click(function () {
       $("#login").prop("disabled", false).html("Login");
 
       if (res == 'success-reception') {
-        window.location = "reception.php";
+          window.location = "reception.php";
       } else {
         $("#respp").html("<span style='color:red;'>Wrong email or password ...</span>");
       }
