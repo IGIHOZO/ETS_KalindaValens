@@ -1,13 +1,16 @@
 <?php
-session_start();
-@require('main/view.php'); 
+    @session_start();
+    if (!isset($_SESSION['worker_id'])) {
+        echo "<script>window.location='login.php'</script>";
+    }else{
+require('main/view.php'); 
 $MainView = new MainView();
 
 
 if ($MainView->StaffPositionName()!='Receptionist') {
   ?>
 <script type="text/javascript">
-       window.location="login.php";
+      //  window.location="login.php";
 </script>
 
   <?php
@@ -63,7 +66,7 @@ require("menus.php");
       <ol class="breadcrumb">
         <li class="breadcrumb-item active">   
           
-        </li><h3 style="float: left;font-weight:bolder;font-size:50px;"><span style="color: #228a2e;">ETS</span> - <span>Attendance System</span></h3><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1>
+        <!-- </li><h3 style="float: left;font-weight:bolder;font-size:50px;"><span style="color: #228a2e;">ETS</span> - <span>Attendance System</span></h3><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1> -->
       </ol>
 
       <div class="card mb-3">
@@ -174,4 +177,5 @@ if (isset($_GET['userAttend'])) {
 <?php 
 
 }
+    }
 ?>

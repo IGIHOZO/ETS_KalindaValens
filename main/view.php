@@ -1,5 +1,5 @@
       <?php
-    // session_start();
+    session_start();
 
     // $dbname = 'mpjusdko_seveeen_web';
     // $user = 'mpjusdko';

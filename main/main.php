@@ -1,5 +1,5 @@
 <?php
-// session_start();
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -49,11 +49,11 @@ function split_name($name) {
 public function UserName($userr)         // FROM (attendance_users)
 {
     $con = parent::connect();
-    $sel = $con->prepare("SELECT * FROM attendance_users WHERE attendance_users.UserId='$userr' OR attendance_users.Lfid='$userr'");
+    $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$userr' OR ets_workers.worker_unid='$userr'");
     $sel->execute();
     if ($sel->rowCount()==1) {
         $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
-        $name = $ft_sel['Names'];
+        $name = $ft_sel['worker_fname'].' '.$ft_sel['worker_lname'];
     }else{
             $name = "-";
         }
@@ -63,11 +63,11 @@ public function UserName($userr)         // FROM (attendance_users)
 public function UserPhone($userr)         // FROM (attendance_users)
 {
     $con = parent::connect();
-    $sel = $con->prepare("SELECT * FROM attendance_users WHERE attendance_users.UserId='$userr' OR attendance_users.Lfid='$userr'");
+    $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$userr' OR ets_workers.worker_unid='$userr'");
     $sel->execute();
     if ($sel->rowCount()==1) {
         $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
-        $name = $ft_sel['Phone'];
+        $name = $ft_sel['worker_phone'];
     }else{
             $name = "-";
         }
@@ -205,15 +205,15 @@ class MainOpoerations extends DbConnectt
             $_SESSION['worker_id'] = $ft_reg['worker_id'];
             switch ($ft_reg['category_name']) {
                 case 'Staff':
-                    print("success-reception");
+                    echo "success-reception";
                     break;
                 default:
-                    echo "$email";
+                    // echo "$email";
                     break;
             }
 
         }else{
-            echo "Zero:  ".md5($pass);
+            // echo "Zero:  ".md5($pass);
         }
     }
 
@@ -237,7 +237,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
           }else{
             // echo "Late";
             // $MyFunctions->sendSmsAttendanceLatnessOnce($att_phone,$att_name);
-            $TimeStatus = "<h1 style='color:red;font-weight:bolder'>You're Late</h1>";
+            $TimeStatus = "<h1 style='color:red;font-weight:bolder'>Late</h1>";
           }
         $con = parent::connect();
         $user = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$user_id' OR ets_workers.worker_unid='$user_id'");
@@ -254,7 +254,6 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
             $attender = $ft_user['worker_id'];
             $attender_photo = $ft_user['worker_photo'];
             $passport = $attender_photo;
-            // $passport = '../img/users/1.jpg';
 
             $firstname = strtoupper($ft_user['worker_fname']);
             $staff_dept = "";
@@ -303,7 +302,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 <script type="text/javascript">
                         $("#respp").css("background-color","red");
                     </script>
-                    <h1 style="font-family: Palatino Linotype;color: #fff;"><span>Attendance time ended, wait for <u>onother shift</u> ...</span></h1>
+                    <h1 style="font-family: Palatino Linotype;color: #fff;"><span>Attendance time ended, wait for <u>another shift</u> ...</span></h1>
                     <?php
                 break;
             case 'IN':
@@ -315,73 +314,20 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                     ?><script type="text/javascript">
                     $("#respp").css("background-color","green");
                 </script>
-                <span style="float:left;"><?=$TimeStatus;?></span>
-                    <center>
-                        <table>
-                            <tr>
-                                <td>
-                                        <center>
-                                <table>
-                                    <tr>
-                                        <!-- <td>
-                                            <span style="float:left;"><?=$TimeStatus;?></span>
-                                        </td> -->
-                                        <td>
-                                            <b style="color:#7df;font-size:30px;font-weight:bolder;"><?=$position?></b>
-                                        </td>
-                                        <td>
-                                            <h1 style="font-size:100px;font-weight:bolder;color: #000;">IN </h1>
-                                        </td>
-                                        <td>
-                                            <img src="img/out.png" style="height: 100px;width: 100px;">
-                                        </td>
-                                    </tr>
-                                    <!-- <tr>
-                                        <td colspan='3'>
-
-                                        </td>
-                                    </tr> -->
-
-                                </table>
-                            </center>
-                            <?php
-                                    if (time() <= strtotime($MorningTime)) {
-                                        // echo "Early";
-                                        // $TimeStatus = "<h1 style='color:#fcdf03;font-weight:bolder'>On-Time</h1>";
-                                    }else{
-                                        // echo "Late";
-                                        $MyFunctions->sendSmsAttendanceLatnessOnce($att_phone,$att_name);
-                                        // $TimeStatus = "<h1 style='color:red;font-weight:bolder'>You're Late</h1>";
-                                    }
-                            ?>
-                                <center>
-                                    <h1 style="font-family: Palatino Linotype;color: #fff;text-align:left;float:left;margin-left:-100px"><?=$MyFunctions->greeting_msg()?> <span style="color:black"><?=$firstname?>,</span> <span>Your're checked-in !</span></h1>
-                                </center>                        
-                                </td>
-                                <!-- <td> -->
-                                    <?php
-                                    if (file_exists($passport)) {
-                                        ?>
-                                        <!-- <img src="img/users/<?=$attender.'.jpg'?>" style="height: 220px;width:180px;border-radius:20%;float:right;margin-left:50px"> -->
-                                        <?php
-                                    }else{
-                                        ?>
-                                        <!-- <img src="img/users/default_user.png" style="height: 220px;width:180px;border-radius:20%;float:right;margin-left:50px;"> -->
-                                        <?php
-                                    }
-                                    ?>
-                                <!-- </td> -->
-                            </tr>
-                        </table>
-                    </center>
+                
+                <center>
+                <span style="font-size:18px;"><i><?=$TimeStatus;?></i></span><br>
+                <img src="<?=$passport?>" style="height: 200px;width:160px;border-radius:50%;"><br>
+                <span style="color:#7df;font-size:18px;font-weight:bolder;"><?=$firstname?></span><br>
+                <span style="color:#7df;font-size:18px;font-weight:bolder;"><?=$position?></span><br>
+                <span style="font-family: Palatino Linotype;color: #fff;">Checked-In!</span><br>
+                </center>
    
                 <?php
                 }else{
-                    //print_r($ok_ins->errorMessage());
                     print_r($ins->errorInfo());
                 }
 
-                // echo $status;
                 break;
             case 'OUT':
                 $noww = date('Y-m-d H:i:s');
@@ -392,48 +338,14 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                     $("#respp").css("background-color","#0c6e82");
                 </script>
                 <center>
-                <table>
-                    <tr>
-                        <td>
-                            <center>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <b style="color:#7df;font-size:30px;font-weight:bolder;"><?=$position?></b>
-                                        </td>
-                                        <td>
-                                            <h1 style="font-size:100px;font-weight:bolder;color: #000;">OUT </h1>
-                                        </td>
-                                        <td>
-                                            <img src="img/out.png" style="height: 100px;width: 100px;">
-                                        </td>
-                                    </tr>
-                                </table>
-                            </center>
-                            <center>
-                                <h1 style="font-family: Palatino Linotype;color: #fff;"><?=$MyFunctions->greeting_msg()?> <span style="color:black"><?=$firstname?>,</span> <span>You're Checked-Out!</span></h1>
-                            </center>
-                        </td>
-                        <!-- <td> -->
-                        <?php
-                                if (file_exists($passport)) {
-                                     ?>
-                                      <!-- <img src="img/users/<?=$attender_photo?>" style="height: 220px;width:180px;border-radius:20%;float:right;margin-left:50px"> -->
-                                     <?php
-                                   }else{
-                                       ?>
-                                       <!-- <img src="img/users/default_user.png" style="height: 220px;width:180px;border-radius:20%;float:right;margin-left:50px;"> -->
-                                    <?php
-                                   }
-                                ?>
-                        <!-- </td> -->
-                    </tr>
-                </table>
+                <img src="<?=$passport?>" style="height: 200px;width:160px;border-radius:50%;"><br>
+                <span style="color:#7df;font-size:18px;font-weight:bolder;"><?=$firstname?></span>
+                <span style="color:#7df;font-size:18px;font-weight:bolder;"><?=$position?></span><br>
+                <span style="font-family: Palatino Linotype;color: #fff;font-size:18px;">Checked-Out!</span><br>
                 </center>
 
                 <?php
                 }else{
-                    // print_r($con->errorMessage());
                     print_r($ins->errorInfo());
                 }
 

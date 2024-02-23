@@ -19,11 +19,12 @@ $("#login").click(function () {
       // Revert button text after the AJAX request completes
       $("#login").prop("disabled", false).html("Login");
 
-      if (res == 'success-reception') {
-          window.location = "reception.php";
-      } else {
+      if (res.includes('success-reception')) {
+        window.location = "reception.php";
+    } else {
         $("#respp").html("<span style='color:red;'>Wrong email or password ...</span>");
-      }
+    }
+    
     }
   });
 });

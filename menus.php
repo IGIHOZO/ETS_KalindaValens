@@ -38,17 +38,17 @@
             <span class="nav-link-text">Attendance Report</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Print Card">
+        <!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Print Card">
           <a class="nav-link" href="print.php">
           <i class="fa fa-fw fa-print"></i>
             <span class="nav-link-text">Print Card</span>
           </a>
-        </li>
+        </li> -->
 
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cards">
           <a class="nav-link" href="cards.php">
           <i class="fa fa-fw fa-th"></i>
-            <span class="nav-link-text">Cards</span>
+            <span class="nav-link-text">Staff Cards</span>
           </a>
         </li>
       </ul>

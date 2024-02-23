@@ -224,6 +224,8 @@ require("menus.php");
           <a href="#">Home</a>
         </li>
         <li class="breadcrumb-item active">Add new Worker</li>
+
+        <a href="supervisor.php" style="float: right;" class="btn btn-danger"><b>Assign New Supervisor</b></a>
       </ol>
       <!-- Icon Cards-->
       <form method="post" action="" enctype="multipart/form-data">
@@ -293,8 +295,8 @@ require("menus.php");
                             <select name="supervisor" class="form-control" required>
                                 <option value="">Select Supervisor</option>
                                 <?php
-                                $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers,ets_workertocapitor WHERE 
-                                ets_workertocapitor.SuperVisor=ets_workers.worker_id AND ets_workers.worker_status=1");
+                                $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers WHERE ets_workers.worker_status=1 AND 
+                                ets_workers.CanSupervise=1 AND ets_workers.worker_category=3");
                                 $sel_super->execute();
                                 if ($sel_super->rowCount() >= 1) {
                                     while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {

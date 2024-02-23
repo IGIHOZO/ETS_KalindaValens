@@ -4,7 +4,7 @@ session_start();
 $MainView = new MainView();
 
 
-if ($MainView->StaffPositionName()!='Receptionist') {
+if ($MainView->StaffPositionName()!='Receptionist' && isset($_SESSION['worker_id'])) {
   ?>
 <script type="text/javascript">
        window.location="login.php";
