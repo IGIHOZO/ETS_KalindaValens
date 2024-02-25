@@ -229,16 +229,18 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 <?php
 }else{
 
-        $MorningTime ="08:30:00";
+        $MorningTime = "05:31:00";
+        $lateTime = "06:31:00";
         $TimeStatus = '-';
-        if (time() <= strtotime($MorningTime)) {
-            // echo "Early";
-            $TimeStatus = "<h1 style='color:#fcdf03;font-weight:bolder'>On-Time</h1>";
-          }else{
-            // echo "Late";
-            // $MyFunctions->sendSmsAttendanceLatnessOnce($att_phone,$att_name);
+        
+        if (time() <= strtotime($MorningTime)) {  // on or above morning time (early)
+            $TimeStatus = "<h1 style='color:#fcdf03;font-weight:bolder'>Earn Extra</h1>";
+        } elseif (time() <= strtotime($lateTime)) {   // on time
+            $TimeStatus = "<h1 style='color:blue;font-weight:bolder'>On-Time</h1>";
+        } else {   // late
             $TimeStatus = "<h1 style='color:red;font-weight:bolder'>Late</h1>";
-          }
+        }
+    
         $con = parent::connect();
         $user = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$user_id' OR ets_workers.worker_unid='$user_id'");
         $user->execute();
@@ -650,7 +652,7 @@ function saveLfid($code,$lfid){
 
 function shift_in($user_id,$srchDate){
     $con = parent::connect();
-    $sel = $con->prepare("SELECT * FROM attendance_records WHERE attendance_records.RecordUser='$user_id' AND attendance_records.RecordTime LIKE '$srchDate%'");
+    $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE ets_attendance_records.RecordUser='$user_id' AND ets_attendance_records.RecordTime LIKE '$srchDate%'");
     $sel->execute();
     $timme='-';
     if ($sel->rowCount()>=1) {
@@ -667,7 +669,7 @@ function shift_in($user_id,$srchDate){
 
 function shift_out($user_id,$srchDate){
     $con = parent::connect();
-    $sel = $con->prepare("SELECT * FROM attendance_records WHERE attendance_records.RecordUser='$user_id' AND attendance_records.RecordTime LIKE '$srchDate%'");
+    $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE ets_attendance_records.RecordUser='$user_id' AND ets_attendance_records.RecordTime LIKE '$srchDate%'");
     $sel->execute();
     $timme='-';
     if ($sel->rowCount()>=1) {
@@ -682,73 +684,39 @@ function shift_out($user_id,$srchDate){
     return $timme;
 }
 
-function observationIn($user_id,$date_time){
-    $cd = $date_time;
-    $con = parent::connect();
-    $sel = $con->prepare("SELECT * FROM attendance_users WHERE attendance_users.UserId='$user_id'");
-    $sel->execute();
-    $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
-    $category = $ft_sel['Class'];
-    $timme_hour=(int)substr($date_time, 1,2);
-    $hrs_diff = $timme_hour-8;
-    (int)$timme_miniutes=substr($cd,4,2);
-    if ($timme_hour==7 AND $timme_miniutes>=40) {
-        $status = 'On Time';
-    }elseif ($timme_hour==7 AND $timme_miniutes<40) {
-        $status = 'earlier';
-    }elseif ($timme_hour<7) {
-        $status = 'Too early';
-    }elseif ($timme_hour==8 AND $timme_miniutes>20) {
-        switch ($category) {
-            case 0:
-                $status = 'Too Late';
-                break;
-            
-            default:
-                $status = 'Too Late (Depends on teaching schedule)';
-                break;
-        }
-    }elseif ($timme_hour==8 AND $timme_miniutes<=20) {
-        switch ($category) {
-            case 0:
-                $status = 'Late';
-                // $status = $timme_hour." - ".$timme_miniutes;
-                break;
-            
-            default:
-                $status = 'Late (Depends on teaching schedule)';
-                break;
-        }
-    }elseif ($timme_hour>8) {
-        switch ($category) {
-            case 0:
-                $status = "Too Late (About $hrs_diff hour 's')";
-                break;
-            
-            default:
-                $status = "Too Late (About $hrs_diff hour 's' (Depends on teaching schedule)";
-                break;
-        }
+
+function observationIn($date_time){
+    $morningTime = "05:30:00";
+    $lateTime = "06:30:00";
+    $observation = '-';
+    
+    $morningTimestamp = strtotime(date('Y-m-d') . ' ' . $morningTime);
+    $lateTimestamp = strtotime(date('Y-m-d') . ' ' . $lateTime);
+    $date_time = strtotime($date_time);
+
+    if ($date_time <= $morningTimestamp) {
+        $observation = "Extra";
+    } elseif ($date_time <= $lateTimestamp) {
+        $observation = "On time";
+    } elseif ($date_time > $lateTimestamp) {
+        $observation = "Late";
     }
-    return $status;
+
+    return $observation;
 }
+
 
 function observationOut($user_id,$date_time){
     $con = parent::connect();
-    $sel = $con->prepare("SELECT * FROM attendance_users WHERE attendance_users.UserId='$user_id'");
+    $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$user_id'");
     $sel->execute();
     $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
-    $category = $ft_sel['Class'];
     $timme_hour=(int)substr($date_time, 1,2);
     $hrs_diff = $timme_hour-8;
     $timme_miniutes=(int)substr($date_time, 3,2);
-    if ($date_time=='-') {
+    if ($date_time=='$date_time') {
         $status = 'Not Checked-Out';
-    }elseif ($category==0 AND $timme_hour<17) {
-        $status = 'Early';
-    }elseif ($category==1 AND $timme_hour<20) {
-        $status = 'Early';
-    }elseif ($category==1 AND $timme_hour==20 AND $timme_miniutes<50) {
+    }elseif ($timme_hour<17) {
         $status = 'Early';
     }else{
         $status = 'On Time';
@@ -788,38 +756,30 @@ function searchAttendanceByDateAndCategory($srchDate,$srchCategory,$srchDateTo){
         }else{
             $arr = [];
             $con = parent::connect();
-            $sel = $con->prepare("SELECT * FROM attendance_records,attendance_users WHERE attendance_users.UserId=attendance_records.RecordUser AND attendance_records.RecordTime LIKE '$dattte%' AND attendance_users.Class='$srchCategory' ORDER BY attendance_records.RecordTime");
+            $sel = $con->prepare("SELECT * FROM ets_attendance_records,ets_workers,ets_workers_category WHERE ets_workers.worker_id =ets_attendance_records.RecordUser 
+            AND ets_workers_category.category_id=ets_workers.worker_category AND 
+             ets_attendance_records.RecordTime LIKE '$dattte%' ORDER BY ets_attendance_records.RecordTime DESC");
             $sel->execute();
             if ($sel->rowCount()>=1) {
                 
                 while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
-                    $user = $ft_sel['UserId'];
+                    $user = $ft_sel['worker_id'];
                     if (in_array($user, $arr)) {
                         continue;
                     }else{
                         array_push($arr, $user);
                         
                         $datetime = $ft_sel['RecordTime'];
-                        switch ($ft_sel['Class']) {
-                            case 0:
-                                $category = 'Administration Staff';
-                                break;
-                            
-                            default:
-                                $category = 'Teaching Staff';
-                                break;
-                        }
                      ?>
                         <tr>
                             <td><?=$cnt++?></td> 
                             <td><?=substr($ft_sel['RecordTime'], 0,10)?></td> 
-                            <td><?=$ft_sel['Names']?></td> 
-                            <td><?=$ft_sel['Position']?></td> 
-                            <td><?=$category?></td> -->
+                            <td><?=strtoupper($ft_sel['worker_fname'])." ".$ft_sel['worker_lname']?></td> 
+                            <td><?=$ft_sel['category_name']?></td> 
                            <td style="font-weight:bold;font-style: italic;"><?=$this->shift_in($user,$dattte);?></td>
-                            <td><center><?=$this->observationIn($user,$this->shift_in($user,$dattte))?></center></td>
+                            <!-- <td><center><?=$this->observationIn($ft_sel['RecordTime'])?></center></td> -->
                             <td style="font-weight:bold;font-style: italic;"><?=$this->shift_out($user,$dattte);?></td>
-                            <td><?=$this->observationOut($user,$this->shift_out($user,$dattte))?></td> -->
+                            <!-- <td><?=$this->observationOut($user,$this->shift_out($user,$dattte))?></td> -->
                             <td style="font-weight: bolder;"><?=$this->generalObservation($this->shift_in($user,$dattte),$this->shift_out($user,$dattte));?></td>
                         </tr>
                         <?php
@@ -833,7 +793,70 @@ function searchAttendanceByDateAndCategory($srchDate,$srchCategory,$srchDateTo){
 
     }
 
+}
 
+function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
+
+    $con = parent::connect();
+    $sel_py = $con->prepare("SELECT * FROM ets_workers,ets_worker_position WHERE ets_workers.supervisor='$srcSupervisor' AND ets_workers.worker_category=3 AND 
+    ets_worker_position.worker_position_id=ets_workers.worker_position AND ets_workers.worker_status=1");
+    $sel_py->execute();
+    if($sel_py->rowCount()>=1){
+        while($ft_sel_py =  $sel_py->fetch(PDO::FETCH_ASSOC)){
+            $cnt = 1;
+            $uid = $ft_sel_py['worker_id'];
+            ?>
+            <tr>
+                <td>
+                    <?=$cnt?>
+                </td>
+                <td>
+                    <?=strtoupper($ft_sel_py['worker_fname'])." ".ucfirst(strtolower($ft_sel_py['worker_lname'])." - ".$ft_sel_py['CanSupervise'])?>
+                </td>
+                <td>
+                    <?=$ft_sel_py['BankNumber']?>
+                </td>
+                <?php
+                $sel_cnt = $con->prepare("SELECT * FROM ets_attendance_records,ets_workers WHERE ets_attendance_records.RecordUser=ets_workers.worker_id
+                 AND ets_workers.worker_id='$uid'");
+                $sel_cnt->execute();
+                $ttl_day = 0;
+                $extra = 0;
+
+                if ($sel_cnt->rowCount()>=1){
+                    
+                    while ($cnt_sel_cnt = $sel_cnt->fetch(PDO::FETCH_ASSOC)) {
+                        $price = $ft_sel_py['worker_position_price'];
+                        $dateString = $cnt_sel_cnt['RecordTime'];
+
+                        $dateTime = new DateTime($dateString);
+
+                        $targetTime = new DateTime("05:31:00");
+                        
+
+                        if ($dateTime < $targetTime) {
+                            $extra += 300;
+                        } 
+
+                        if($ft_sel_py['CanSupervise']==1){
+                            echo "<td>".($price+400)."</td>";
+                            $ttl_day += ($price+400);
+                        }else{
+                            echo "<td>".$price."</td>";
+                            $ttl_day += $price;
+                        }
+                    }
+                }
+                ?>
+                <td style="background-color:#aede34"><?=$extra?></td>
+                <td style="background-color:#778855"><?=number_format($ttl_day+$extra)?></td>
+            </tr>
+            <?php
+            $cnt++;
+        }
+    }else{
+        echo "Hello";
+    }
 
 }
 
@@ -1293,7 +1316,9 @@ if (isset($_GET['login'])) {
     $MainOpoerations->saveAchievement($_GET['myGoals'],$_GET['goalAchievement']);
 }elseif (isset($_GET['saveLeaveRange'])) {
     $MainOpoerations->saveLeaveRange($_GET['range']);
+}elseif (isset($_GET['searchPayroll'])) {
+    $MainOpoerations->searchPayroll($_GET['srchDate'],$_GET['srchDateTo'],$_GET['srchSupervisor']);
 }
 
 
-?>
+?>  

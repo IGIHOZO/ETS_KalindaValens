@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $banknumber = $_POST['banknumber'];
         $dob = $_POST['dob'];
         $gender = $_POST['gender'];
+        $wrk_position = $_POST['wrk_position'];
 
         
 
@@ -50,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Save data to the database
-        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender);
+        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender, $wrk_position);
 
         // Output a message or redirect after processing
         // echo "Form submitted successfully!";
@@ -117,7 +118,7 @@ function generateRandomUniqueId($con) {
     return $uniqueId;
 }
 
-function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender) {
+function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender, $wrk_position) {
     try {
         // Validate and sanitize input parameters
         $fname = filter_var($fname, FILTER_SANITIZE_STRING);
@@ -130,10 +131,12 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $banknumber = filter_var($banknumber, FILTER_SANITIZE_STRING);
         $dob = filter_var($dob, FILTER_SANITIZE_STRING);
         $gender = filter_var($gender, FILTER_SANITIZE_STRING);
+        $wrk_position = filter_var($wrk_position, FILTER_SANITIZE_STRING);
+
 
         // Perform the SQL query to insert data into the database
-        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, supervisor, worker_category, worker_unid, Bank, BankNumber, DoB, Gender)
-              VALUES (:fname, :lname, :phone, :nid, :ppicture, :supervisor, :worker_category, :worker_unid, :Bank, :BankNumber, :DoB, :Gender)";
+        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, supervisor, worker_category, worker_unid, Bank, BankNumber, DoB, Gender, worker_position)
+              VALUES (:fname, :lname, :phone, :nid, :ppicture, :supervisor, :worker_category, :worker_unid, :Bank, :BankNumber, :DoB, :Gender, :wrk_position)";
         $worker_category = 3;
 
         // Generate a random unique ID
@@ -152,6 +155,7 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $stmt->bindParam(':BankNumber', $banknumber);
         $stmt->bindParam(':DoB', $dob);
         $stmt->bindParam(':Gender', $gender);
+        $stmt->bindParam(':wrk_position', $wrk_position);
 
         // Execute the insert query
         $ok_in = $stmt->execute();
@@ -309,8 +313,25 @@ require("menus.php");
                         </div>
                     </div>
                 </div>
-
                 <div class="col-md-4">
+                  <div class="mb-3 row">
+                          <label for="bankaccount" class="col-sm-4 col-form-label font-weight-bold">Position:</label>
+                          <div class="col-sm-8">
+                              <select name="wrk_position" class="form-control" required>
+                                  <option value="">Select Position</option>
+                                  <?php
+                                  $sel_super = $con->prepare("SELECT * FROM ets_worker_position WHERE ets_worker_position.worker_position_status=1");
+                                  $sel_super->execute();
+                                  if ($sel_super->rowCount() >= 1) {
+                                      while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
+                                          $usr_id = $ft_super['worker_position_id'];
+                                          echo "<option value='" . $usr_id . "'>" . $ft_super['worker_position_name'] . "</option>";
+                                      }
+                                  }
+                                  ?>
+                              </select>
+                          </div>
+                      </div>
                     <div class="mb-3 row">
                         <label for="dob" class="col-sm-4 col-form-label font-weight-bold">Birth:</label>
                         <div class="col-sm-8">
@@ -360,7 +381,8 @@ require("menus.php");
                 </tr>
               </thead>
               <?php 
-              $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_category=3 AND ets_workers.worker_status=1 ORDER BY ets_workers.worker_id DESC");
+              $sel = $con->prepare("SELECT * FROM ets_workers,ets_worker_position WHERE ets_workers.worker_category=3 AND ets_worker_position.worker_position_id=ets_workers.worker_position
+               AND ets_workers.worker_status=1 ORDER BY ets_workers.worker_id DESC");
               $sel->execute();
               if ($sel->rowCount()>=1) {
                 $cnt = 1;
@@ -369,7 +391,7 @@ require("menus.php");
                   <tr>
                     <td>  <?=$cnt.". "?>  </td>
                     <td>  <?=strtoupper($ft_se['worker_fname']).' '.$ft_se['worker_lname']?>   </td>
-                    <td>  <?=$MainView->WorkerPositionName($ft_se['worker_id'])?>   </td>
+                    <td>  <?=$ft_se['worker_position_name']?>   </td>
                     <td>   <?=$ft_se['worker_phone']?>  </td>
                     <td>   <?=$ft_se['worker_unid']?>  </td>
                     <td>   <?=$MainView->WorkerCategory($ft_se['worker_id'])?>  </td>

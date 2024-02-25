@@ -1,5 +1,5 @@
       <?php
-    session_start();
+    @session_start();
 
     // $dbname = 'mpjusdko_seveeen_web';
     // $user = 'mpjusdko';
@@ -50,7 +50,7 @@ class MainView extends DbConnect
     
     function todays_attendance(){
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM attendance_records WHERE CAST(attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) ORDER BY attendance_records.RecordTime DESC");
+        $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) ORDER BY ets_attendance_records.RecordTime DESC");
         $sel->execute();
         $cnt = 0;
         if ($sel->rowCount()>=1) {
@@ -71,7 +71,7 @@ class MainView extends DbConnect
 
     function todays_right_arrival(){
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM attendance_records WHERE CAST(attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) AND substr(attendance_records.RecordTime, 12,2)<'08' ORDER BY attendance_records.RecordTime DESC");
+        $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) AND substr(ets_attendance_records.RecordTime, 12,2)<'07' ORDER BY ets_attendance_records.RecordTime DESC");
         $sel->execute();
         $cnt = 0;
         if ($sel->rowCount()>=1) {
@@ -92,7 +92,7 @@ class MainView extends DbConnect
 
     function todays_lates(){
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM attendance_records WHERE CAST(attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) AND substr(attendance_records.RecordTime, 12,2)>='08' ORDER BY attendance_records.RecordTime DESC");
+        $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) AND substr(ets_attendance_records.RecordTime, 12,2)>='07' ORDER BY ets_attendance_records.RecordTime DESC");
         $sel->execute();
         $cnt = 0;
         if ($sel->rowCount()>=1) {

@@ -25,25 +25,19 @@
             <span class="nav-link-text">Staffs</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Missed">
-          <a class="nav-link" href="missed.php">
-          <i class="fa fa-fw fa-user-times"></i>
 
-            <span class="nav-link-text">Missed</span>
-          </a>
-        </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="ttendance Report">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="attendance Report">
           <a class="nav-link" href="report.php">
           <i class="fa fa-fw fa-calendar"></i>
             <span class="nav-link-text">Attendance Report</span>
           </a>
         </li>
-        <!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Print Card">
-          <a class="nav-link" href="print.php">
-          <i class="fa fa-fw fa-print"></i>
-            <span class="nav-link-text">Print Card</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Payroll Report">
+          <a class="nav-link" href="payroll.php">
+          <i class="fa fa-fw fa-money"></i>
+            <span class="nav-link-text">Payroll Report</span>
           </a>
-        </li> -->
+        </li>
 
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cards">
           <a class="nav-link" href="cards.php">

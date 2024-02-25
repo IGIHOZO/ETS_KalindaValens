@@ -131,6 +131,38 @@ $("#srch_att").click(function(){
     }
 });
 
+//================== Search Payroll
+$("#srch_payroll").click(function(){
+  var srchSupervisor = document.getElementById('supervisor').value;
+  var srchDate = document.getElementById('ddate').value;
+  var srchDateTo = document.getElementById('ddate_to').value;
+  var srchCategory = document.getElementById('att_categry').value;
+  if (srchSupervisor=='' || srchCategory=='' || srchCategory == null || srchDate=='' == null || srchDateTo == null) {
+    alert("Please fill all forms ...");
+  }else{
+    var searchPayroll = true;
+    $.ajax({url:"main/main.php",
+    type:"GET",data:{
+      searchPayroll:searchPayroll,srchDate:srchDate,srchCategory:srchCategory,srchDateTo:srchDateTo,srchSupervisor:srchSupervisor
+    },cache:false,
+    beforeSend(){
+      $('.overlay').css('display','flex');
+    },
+    success:function(res){
+      $('.overlay').css('display','none');
+
+      if (res=='null') {
+              alert("Please fill all forms ...");
+      }else{
+        $("#resspp").html(res);
+        // $("#respp").css("background-color","red");
+      }
+    }
+    });
+  }
+});
+
+
 //================== Search Missed Attendance
 
 $("#srch_att_missed").click(function(){

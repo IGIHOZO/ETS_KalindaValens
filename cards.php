@@ -101,12 +101,12 @@ require("menus.php");
                         </tr>
                         <tr>
                             <td style="text-align: center; padding: 20px; position: relative;">
-                                <img src="<?= $ft_se['worker_photo'] ?>" alt="Employee profile picture" style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid #3498db;" />
+                                <img src="<?= $ft_se['worker_photo'] ?>" alt="Employee profile picture" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #3498db;" />
                                 <h5 style=" font-size: 16px; color: #333;"><?= strtoupper($ft_se['worker_fname']) . ' ' . $ft_se['worker_lname'] ?> </h5>
                                 <b><i><label style="margin: 5px 0; color: #666;"><?= $position ?></label></i></b>
                             </td>
                             <td style="width: 160px; padding: 0px 40px 0px 40px; text-align: center; color: #333;font-weight:bold">
-                                <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-image: url('img/logo.jpeg'); background-size:50%; background-position: center; opacity: 0.1; z-index: -1;background-repeat:no-repeat"></div>
+                                <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-image: url('img/logo.jpeg'); background-size:50%; background-position: center; opacity: 0.1;background-repeat:no-repeat"></div>
 
                             <span>
                             <p style="font-size: 14px; font-weight: bold;"><b><h3><?= $ft_se['worker_unid'] ?></h3></b></p>
@@ -114,13 +114,13 @@ require("menus.php");
                                     <i class="fa fa-phone-alt" style="color: #3498db; margin-right: 5px;"></i> +25<?= $ft_se['worker_phone'] ?>
                                 </p>
                                 <p style="font-size: 12px;">
-                                    <i class="fa fa-envelope" style="color: #3498db; margin-right: 5px;"></i> info@etskalindavalens.com
+                                    <i class="fa fa-envelope" style="color: #3498db; margin-right: 5px;"></i> etskalindaltd@gmail.com
                                 </p>
-                                <p style="font-size: 12px;">
+                                <!-- <p style="font-size: 12px;">
                                     <i class="fa fa-globe" style="color: #3498db; margin-right: 5px;"></i> etskalindavalens.com
-                                </p>
+                                </p> -->
                                 <p style="font-size: 12px;">
-                                    <i class="fa fa-map-marker-alt" style="color: #3498db; margin-right: 5px;"></i> 3VQP+JV, Taba
+                                    <i class="fa fa-map-marker-alt" style="color: #3498db; margin-right: 5px;"></i> ETS Kalinda Valens, 3VQP+JV, Taba
                                 </p>
                             </span>
                             </td>
@@ -129,8 +129,8 @@ require("menus.php");
                             <script>
                                 var qrcode = new QRCode(document.getElementById("qr-code-<?= $ft_se['worker_id'] ?>"), {
                                     text: "https://seveeen.rw/ets/reception.php?userAttend=1&attendedUser=<?= $ft_se['worker_id'] ?>", // Fixed typo here
-                                    width: 120,
-                                    height: 120,
+                                    width: 140,
+                                    height: 140,
                                     colorDark: "#000000",
                                     correctLevel: QRCode.CorrectLevel.H
                                 });
@@ -138,14 +138,14 @@ require("menus.php");
 
 
 
-                                <small style=" display: block; margin-top: 10px; color: #666;">This card is the property of ETS</small>
+                                <small style=" display: block; margin-top: 10px; color: #666;">This card is the property of ETS <br> If found please return it to the specified address</small>
                                 <p class="issue-date" style="margin: 10px 0; color: #333;">Issued Date: 2024-02-21</p>
                                 <p class="expiry-date" style="margin: 10px 0; color: #333;">Expiry Date: 2025-02-21</p>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="3" style="text-align: center; background-color: #3498db; color: #fff; font-weight: bolder; font-size: 16px;">
-                                <label>Rubare village, Gishyeshye, Rukoma, Kamonyi District</label>
+                                <label>Kamonyi District - Rukoma Sector</label>
                             </td>
 
                         </tr>

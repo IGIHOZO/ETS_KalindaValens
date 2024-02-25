@@ -254,11 +254,11 @@ require("menus.php");
               <label style="font-weight: bolder;" for="#ddate_to"> <u>To</u>&nbsp;&nbsp;&nbsp;&nbsp;(Date): </label>
               <input type="date" id="ddate_to" class="form-control" name="">
             </div>
-            <div class="col-2"> 
+            <div class="col-2" style="display:none"> 
               <label style="font-weight: bolder;" for="#att_categry"> Emplyee Category: </label>
               <select class="form-control" id="att_categry">
                 <option value="">Select Category</option>
-                <option value="0">Right Arrivers</option>
+                <option value="0" selected>Right Arrivers</option>
                 <option value="1">Early Risers</option>
               </select>
             </div>
@@ -279,12 +279,12 @@ require("menus.php");
                       <th>#</th>
                       <th>Date</th>
                       <th>Name</th>
-                      <th>Position</th>
+                      <!-- <th>Position</th> -->
                       <th>Category</th>
                       <th><center>IN</center> </th>
-                      <th><center>IN-Observation</center> </th>
+                      <!-- <th><center>IN-Observation</center> </th> -->
                       <th><center>OUT</center> </th>
-                      <th><center>OUT-Observation</center> </th>
+                      <!-- <th><center>OUT-Observation</center> </th> -->
                       <th><center>General Observation</center></th>
                     </tr>
                   </thead>
