@@ -24,10 +24,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $lname = $_POST["lname"];
         $phone = $_POST["phone"];
         $nid = $_POST["nid"];
-        $supervisor = $_POST["supervisor"];
+        $staffposition = $_POST["staffposition"];
 
         // File upload handling
         $ppicture = uploadImage();
+        $bank = $_POST["bank"];
+        $account_number = $_POST["banknumber"];
+        $dob = $_POST["dob"];
+        $gender = $_POST["gender"];
 
         // Perform further processing or validation as needed
 
@@ -43,8 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
 
-        // Save data to the database
-        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor);
+        // Save data to the database          
+        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $staffposition,$bank,$account_number,$dob,$gender);
 
         // Output a message or redirect after processing
         // echo "Form submitted successfully!";
@@ -52,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 function uploadImage() {
-    $targetDir = "img/workers/"; // Specify your target directory
+    $targetDir = "img/staffs/"; // Specify your target directory
     $imageFileType = strtolower(pathinfo($_FILES["ppicture"]["name"], PATHINFO_EXTENSION));
 
     // Encrypt the file name
@@ -111,7 +115,7 @@ function generateRandomUniqueId($con) {
     return $uniqueId;
 }
 
-function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor) {
+function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture,$staffposition,$bank,$account_number,$dob,$gender) {
     try {
         // Validate and sanitize input parameters
         $fname = filter_var($fname, FILTER_SANITIZE_STRING);
@@ -119,12 +123,15 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $phone = filter_var($phone, FILTER_SANITIZE_STRING);
         $nid = filter_var($nid, FILTER_SANITIZE_STRING);
         $ppicture = filter_var($ppicture, FILTER_SANITIZE_STRING);
-        $supervisor = filter_var($supervisor, FILTER_SANITIZE_STRING);
+        $bank = filter_var($bank, FILTER_SANITIZE_STRING);
+        $account_number = filter_var($account_number, FILTER_SANITIZE_STRING);
+        $dob = filter_var($dob, FILTER_SANITIZE_STRING);
+        $gender = filter_var($gender, FILTER_SANITIZE_STRING);
 
         // Perform the SQL query to insert data into the database
-        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, supervisor, worker_category, worker_unid)
-              VALUES (:fname, :lname, :phone, :nid, :ppicture, :supervisor, :worker_category, :worker_unid)";
-        $worker_category = 3;
+        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, worker_category, worker_unid, worker_position,Bank, BankNumber, DoB, Gender)
+              VALUES (:fname, :lname, :phone, :nid, :ppicture, :worker_category, :worker_unid, :staff_position, :bank, :account_number, :dob, :gender)";
+        $worker_category = 1;
 
         // Generate a random unique ID
         $worker_unid = generateRandomUniqueId($con);
@@ -135,9 +142,14 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $stmt->bindParam(':phone', $phone);
         $stmt->bindParam(':nid', $nid);
         $stmt->bindParam(':ppicture', $ppicture);
-        $stmt->bindParam(':supervisor', $supervisor);
+        // $stmt->bindParam(':supervisor', $supervisor);
         $stmt->bindParam(':worker_category', $worker_category);
         $stmt->bindParam(':worker_unid', $worker_unid);
+        $stmt->bindParam(':staff_position', $staffposition);
+        $stmt->bindParam(':bank', $bank);
+        $stmt->bindParam(':account_number', $account_number);
+        $stmt->bindParam(':dob', $dob);
+        $stmt->bindParam(':gender', $gender);
 
         // Execute the insert query
         $ok_in = $stmt->execute();
@@ -214,53 +226,113 @@ require("menus.php");
 
       </ol>
       <!-- Icon Cards-->
-      <!-- <form method="post" action="" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="First Name" aria-label="First Name" name="fname" aria-describedby="basic-addon1" required>
+      <form method="post" action="" enctype="multipart/form-data">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3 row">
+                        <label for="fname" class="col-sm-4 col-form-label font-weight-bold">First Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="First Name" name="fname" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="lname" class="col-sm-4 col-form-label font-weight-bold">Last Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="Last Name" name="lname" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="phone" class="col-sm-4 col-form-label font-weight-bold">Phone:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="078......." name="phone" maxlength="10" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="nid" class="col-sm-4 col-form-label font-weight-bold">NID:</label>
+                        <div class="col-sm-8">
+                            <input type="number" class="form-control" placeholder="(16 characters)" name="nid" maxlength="16" required>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Last Name" aria-label="Last Name" name="lname" aria-describedby="basic-addon1" required>
+
+                <div class="col-md-4">
+                    <div class="mb-3 row">
+                        <label for="ppicture" class="col-sm-4 col-form-label font-weight-bold">Picture:</label>
+                        <div class="col-sm-8">
+                            <input type="file" class="form-control" name="ppicture" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="bankaccount" class="col-sm-4 col-form-label font-weight-bold">Bank:</label>
+                        <div class="col-sm-8">
+                            <select name="bank" class="form-control" required>
+                                <option value="">Select Bank Account</option>
+                                <?php
+                                $sel_super = $con->prepare("SELECT * FROM ets_banks WHERE ets_banks.BankStatus=1");
+                                $sel_super->execute();
+                                if ($sel_super->rowCount() >= 1) {
+                                    while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
+                                        $usr_id = $ft_super['BankID'];
+                                        echo "<option value='" . $usr_id . "'>" . $ft_super['BankName'] . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="banknumber" class="col-sm-4 col-form-label font-weight-bold">Account:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="Bank Account Number" name="banknumber" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="staffposition" class="col-sm-4 col-form-label font-weight-bold">Position:</label>
+                        <div class="col-sm-8">
+                            <select name="staffposition" class="form-control" required>
+                                <option value="">Select Position</option>
+                                <?php
+                                $sel_super = $con->prepare("SELECT * FROM ets_staff_position WHERE ets_staff_position.PositionStatus=1 ORDER BY ets_staff_position.PositionName ASC");
+                                $sel_super->execute();
+                                if ($sel_super->rowCount() >= 1) {
+                                    while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
+                                        $usr_id = $ft_super['PositionID'];
+                                        echo "<option value='" . $usr_id . "'>" . $ft_super['PositionName'] . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Phone (078....)" aria-label="Phone" name="phone" aria-describedby="basic-addon2" maxlength="10" required>
-                </div>
-                <div class="input-group mb-3">
-                    <input type="number" class="form-control" placeholder="NID" aria-label="NID" name="nid" aria-describedby="basic-addon2" maxlength="16" required>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" placeholder="Profile Picture" aria-label="Profile Picture" name="ppicture" aria-describedby="basic-addon3">
-                </div>
-                <div class="input-group mb-3">
-                    <select name="supervisor" class="form-control">
-                        <option value=""> Select Supervisor</option>
-                        <?php
-                        $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers,ets_workertocapitor WHERE 
-                        ets_workertocapitor.SuperVisor=ets_workers.worker_id AND ets_workers.worker_status=1");
-                        $sel_super->execute();
-                        if ($sel_super->rowCount()>=1) {
-                            while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
-                              $usr_id = $ft_super['worker_id'];
-                                echo "<option value='".$usr_id."'>".$ft_super['worker_fname']." ".$ft_super['worker_lname']."</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group mb-3">
-                    <button type="submit" name="reg_worker" class="btn btn-success">Submit</button>
+
+                <div class="col-md-4">
+                    <div class="mb-3 row">
+                        <label for="dob" class="col-sm-4 col-form-label font-weight-bold">Birth:</label>
+                        <div class="col-sm-8">
+                            <input type="date" class="form-control" name="dob" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="gender" class="col-sm-4 col-form-label font-weight-bold">Gender:</label>
+                        <div class="col-sm-8">
+                            <select name="gender" id="gender" class="form-control" required>
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col-sm-8 offset-sm-4">
+                            <button type="submit" name="reg_worker" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </form> -->
-    <h1>COMING SOON</h1>
+      </form>
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
@@ -276,6 +348,7 @@ require("menus.php");
                   <th>Phone</th>
                   <th>UNIQUE-ID</th>
                   <th>Category</th>
+                  <th>Picture</th>
                   <!-- <th>Supervisor</th> -->
                 </tr>
               </thead>
@@ -293,7 +366,7 @@ require("menus.php");
                     <td>   <?=$ft_se['worker_phone']?>  </td>
                     <td>   <?=$ft_se['worker_unid']?>  </td>
                     <td>   <?=$MainView->WorkerCategory($ft_se['worker_id'])?>  </td>
-                    <!-- <td>   <?=$MainView->WorkerSupervisor($ft_se['worker_id'])?>  </td> -->
+                    <td>   <img src="<?=$ft_se['worker_photo']?>" alt="<?=$ft_se['worker_unid']?>" style="witdt: 60px;height:80px">  </td>
                   </tr>
                   <?php
                   $cnt++;
@@ -314,7 +387,7 @@ require("menus.php");
                   <th>Phone</th>
                   <th>UNIQUE-ID</th>
                   <th>Category</th>
-                  <!-- <th>Supervisor</th> -->
+                  <th>Picture</th>
                 </tr>
               </tfoot>
               <tbody>

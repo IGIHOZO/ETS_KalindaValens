@@ -78,7 +78,7 @@ require("menus.php");
 
 
       <?php
-    $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_status=1 ORDER BY ets_workers.worker_id DESC");
+    $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_status=1 ORDER BY ets_workers.worker_fname, ets_workers.worker_lname ASC");
     $sel->execute();
     if ($sel->rowCount() >= 1) {
         $cnt = 1;

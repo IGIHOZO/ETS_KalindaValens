@@ -112,7 +112,7 @@ class MainView extends DbConnect
     }
     function all_cards(){
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_status=1");
+        $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_status=1 ORDER BY ets_workers.worker_fname, ets_workers.worker_lname ASC");
         $sel->execute();
         while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
             $user_id = $ft_sel['worker_id'];
