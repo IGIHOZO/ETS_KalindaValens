@@ -81,12 +81,30 @@ $("#userCode").click(function(){
 
 
 //================== SCAN CARD 
-$("#scan_card").change(function(){
-  var content = document.getElementById('scan_card').value;
+$("#scan_card").on('change keydown', function(event) {
+  if (event.type === 'change' || (event.type === 'keydown' && event.keyCode === 13)) {
+  const inputUrl = document.getElementById('scan_card').value;
+// const inputUrl = "http://seveeen.rw/ets/reception.php?userAttend=1&attendedUser=23";
+
+function extractQueryParams(url) {
+    const params = new URLSearchParams(url.split('?')[1]);
+    const requestType = params.get('userAttend');
+    const userId = params.get('attendedUser');
+
+    return { requestType, userId };
+}
+
+const { requestType, userId } = extractQueryParams(inputUrl);
+
+// Log the results
+console.log("requestType:", requestType);
+console.log("userId:", userId);
+
+
   var scan_card = true;
     $.ajax({url:"main/main.php",
     type:"GET",data:{
-      scan_card:scan_card,content:content
+      scan_card:scan_card,content:userId
     },cache:false,success:function(res){
         $("#scan_card").html("");
         $("#scan_card").val("");
@@ -99,6 +117,8 @@ $("#scan_card").change(function(){
       }
     }
     });
+
+}
 });
 
 //================== Search Attendance
