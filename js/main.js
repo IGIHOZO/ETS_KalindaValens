@@ -83,6 +83,9 @@ $("#userCode").click(function(){
 //================== SCAN CARD 
 $("#scan_card").on('change keydown', function(event) {
   if (event.type === 'change' || (event.type === 'keydown' && event.keyCode === 13)) {
+    $("#respp").css("background-color","grey");
+    $("#respp").html("<h3>Loading, Please Wait ...</h3>");
+
   const inputUrl = document.getElementById('scan_card').value;
 // const inputUrl = "http://seveeen.rw/ets/reception.php?userAttend=1&attendedUser=23";
 
