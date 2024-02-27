@@ -1078,6 +1078,31 @@ public function WorkerSupervisor($userId)        //=============================
   }
   return $all;
 }
+public function UserNames($userId)        //==================================== staff Position name
+{
+  $con = parent::connect();
+  $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$userId'");
+  $sel->execute();
+  if ($sel->rowCount()>=1) {
+    $posData = $sel->fetch(PDO::FETCH_ASSOC);
+    $all = strtoupper($posData['worker_fname']).'  '.$posData['worker_lname'];
+  }else{
+    $all = '-';
+  }
+  return $all;
+}public function UserNames_tr_sponsor($userId)        //==================================== staff Position name
+{
+  $con = parent::connect();
+  $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$userId'");
+  $sel->execute();
+  if ($sel->rowCount()>=1) {
+    $posData = $sel->fetch(PDO::FETCH_ASSOC);
+    $all = strtoupper($posData['worker_fname']).'  '.$posData['worker_lname'];
+  }else{
+    $all = '-';
+  }
+  echo "<th colspan='3' style='background-color:#E3E464'>Supervisor: ".$all."</th>";
+}
 
 public function WorkerCategory($user)        //==================================== display worker category
 {
@@ -1187,6 +1212,8 @@ if (isset($_POST['MyAllLeaves'])) {
     $MainView->MyLeaveRange();
 }elseif (isset($_POST['AllLeaveRange'])) {
     $MainView->AllLeaveRange();
+}elseif (isset($_GET['UserNames_tr_sponsor'])) {
+    $MainView->UserNames_tr_sponsor($_GET['userId']);
 }
 
 

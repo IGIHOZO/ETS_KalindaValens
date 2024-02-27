@@ -292,6 +292,7 @@ require("menus.php");
           <div class="table-responsive"> 
             <table class="table table-bordered" id="tbl_exporttable_to_xls" width="100%" cellspacing="0" style="font-size:12px">
                   <thead>
+                    <tr id="trSupervisorName"></tr>
                     <tr>
                       <th>#</th>
                       <th>AMAZINA</th>
@@ -376,15 +377,72 @@ function checkTime(i) {
 startTime();
 
 function ExportToExcel(type, fn, dl) {
-       var elt = document.getElementById('tbl_exporttable_to_xls');
-       var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
-       return dl ?
-         XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
-         XLSX.writeFile(wb, fn || ('AttendanceOverallReport.' + (type || 'xlsx')));
-    }
+    var elt = document.getElementById('tbl_exporttable_to_xls');
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.table_to_sheet(elt);
+
+    // Example: Set background color for cell A1 to red
+    ws.A1.s = { fill: { bgColor: { indexed: 64 }, fgColor: { rgb: "FF0000" } } };
+
+    XLSX.utils.book_append_sheet(wb, ws, "sheet1");
+
+    return dl ?
+        XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
+        XLSX.writeFile(wb, fn || ('PayrollReport.' + (type || 'xlsx')));
+}
+
+
 
 $("#sidenavToggler").click(); //===================== Minimizing Menu Section
 
+
+
+
+//================== Search Payroll
+$("#srch_payroll").click(function(){
+  var srchSupervisor = document.getElementById('supervisor').value;
+  var srchDate = document.getElementById('ddate').value;
+  var srchDateTo = document.getElementById('ddate_to').value;
+  var srchCategory = document.getElementById('att_categry').value;
+  if (srchSupervisor=='' || srchCategory=='' || srchCategory == null || srchDate=='' == null || srchDateTo == null) {
+    alert("Please fill all forms ...");
+  }else{
+    var searchPayroll = true;
+    $.ajax({url:"main/main.php",
+    type:"GET",data:{
+      searchPayroll:searchPayroll,srchDate:srchDate,srchCategory:srchCategory,srchDateTo:srchDateTo,srchSupervisor:srchSupervisor
+    },cache:false,
+    beforeSend(){
+      $('.overlay').css('display','flex');
+    },
+    success:function(res){
+      $('.overlay').css('display','none');
+
+      if (res=='null') {
+              alert("Please fill all forms ...");
+      }else{
+        $("#resspp").html(res);
+        // $("#respp").css("background-color","red");
+      }
+    }
+    });
+    var UserNames_tr_sponsor = true;
+    $.ajax({url:"main/view.php",
+    type:"GET",data:{
+      UserNames_tr_sponsor:UserNames_tr_sponsor,userId:srchSupervisor
+    },cache:false,
+    beforeSend(){
+      $('.overlay').css('display','flex');
+    },
+    success:function(res){
+      $('.overlay').css('display','none');
+
+        $("#trSupervisorName").html(res);
+
+    }
+    });
+  }
+});
 </script>
   </div>
 </body>

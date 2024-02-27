@@ -230,7 +230,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
 }else{
 
         $MorningTime = "05:31:00";
-        $lateTime = "06:31:00";
+        $lateTime = "06:05:00";
         $TimeStatus = '-';
         
         if (time() <= strtotime($MorningTime)) {  // on or above morning time (early)
@@ -687,7 +687,7 @@ function shift_out($user_id,$srchDate){
 
 function observationIn($date_time){
     $morningTime = "05:30:00";
-    $lateTime = "06:30:00";
+    $lateTime = "06:05:00";
     $observation = '-';
     
     $morningTimestamp = strtotime(date('Y-m-d') . ' ' . $morningTime);
@@ -795,70 +795,113 @@ function searchAttendanceByDateAndCategory($srchDate,$srchCategory,$srchDateTo){
 
 }
 
-function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
 
+
+function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
+    $MainView = new MainView();
+    $supervisorName = $MainView->UserNames($srcSupervisor);
+    // echo "<center id='supervisodNmae'><h4> Puservisor: ".$supervisorName."</h4></center>";
     $con = parent::connect();
-    $sel_py = $con->prepare("SELECT * FROM ets_workers,ets_worker_position WHERE ets_workers.supervisor='$srcSupervisor' AND ets_workers.worker_category=3 AND 
+    $sel_py = $con->prepare("SELECT * FROM ets_workers, ets_worker_position WHERE ets_workers.supervisor='$srcSupervisor' AND ets_workers.worker_category=3 AND 
     ets_worker_position.worker_position_id=ets_workers.worker_position AND ets_workers.worker_status=1");
     $sel_py->execute();
-    if($sel_py->rowCount()>=1){
+    
+    if($sel_py->rowCount() >= 1){
+        $cnt = 1;
+        
         while($ft_sel_py =  $sel_py->fetch(PDO::FETCH_ASSOC)){
-            $cnt = 1;
             $uid = $ft_sel_py['worker_id'];
             ?>
             <tr>
-                <td>
-                    <?=$cnt?>
-                </td>
-                <td>
-                    <?=strtoupper($ft_sel_py['worker_fname'])." ".ucfirst(strtolower($ft_sel_py['worker_lname'])." - ".$ft_sel_py['CanSupervise'])?>
-                </td>
-                <td>
-                    <?=$ft_sel_py['BankNumber']?>
-                </td>
+                <td><?=$cnt?></td>
+                <td><?=strtoupper($ft_sel_py['worker_fname'])." ".ucfirst(strtolower($ft_sel_py['worker_lname']))?></td>
+                <td><?=$ft_sel_py['BankNumber']?></td>
+
                 <?php
-                $sel_cnt = $con->prepare("SELECT * FROM ets_attendance_records,ets_workers WHERE ets_attendance_records.RecordUser=ets_workers.worker_id
-                 AND ets_workers.worker_id='$uid'");
+                $sel_cnt = $con->prepare("SELECT ets_attendance_records.*, ets_workers.*
+                FROM ets_attendance_records
+                INNER JOIN ets_workers ON ets_attendance_records.RecordUser = ets_workers.worker_id
+                WHERE ets_workers.worker_id = '$uid'
+                AND DATE(ets_attendance_records.RecordTime) BETWEEN '$srchDate' AND '$srchDateTo'
+                AND TIME(ets_attendance_records.RecordTime) <= '06:05:00'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM ets_attendance_records as r2
+                    WHERE DATE(r2.RecordTime) = DATE(ets_attendance_records.RecordTime)
+                    AND r2.RecordTime < ets_attendance_records.RecordTime
+                    AND r2.RecordUser = ets_workers.worker_id
+                )
+                GROUP BY DATE(ets_attendance_records.RecordTime);");
+                
                 $sel_cnt->execute();
+                
                 $ttl_day = 0;
                 $extra = 0;
-
-                if ($sel_cnt->rowCount()>=1){
-                    
-                    while ($cnt_sel_cnt = $sel_cnt->fetch(PDO::FETCH_ASSOC)) {
-                        $price = $ft_sel_py['worker_position_price'];
-                        $dateString = $cnt_sel_cnt['RecordTime'];
-
-                        $dateTime = new DateTime($dateString);
-
-                        $targetTime = new DateTime("05:31:00");
-                        
-
-                        if ($dateTime < $targetTime) {
-                            $extra += 300;
-                        } 
-
-                        if($ft_sel_py['CanSupervise']==1){
-                            echo "<td>".($price+400)."</td>";
-                            $ttl_day += ($price+400);
-                        }else{
-                            echo "<td>".$price."</td>";
-                            $ttl_day += $price;
-                        }
-                    }
+                $price = 0;
+                $dayCount = 0; // Counter for the days of the week
+                
+                // Initialize an array to store fetched data
+                $dataArray = [];
+                while ($cnt_sel_cnt = $sel_cnt->fetch(PDO::FETCH_ASSOC)) {
+                    $dataDate = new DateTime($cnt_sel_cnt['RecordTime']);
+                    $dataDay = $dataDate->format('N');
+                    $dataArray[$dataDay] = $cnt_sel_cnt;
                 }
+                
+                // Loop exactly 6 times (for Monday to Saturday)
+                for ($i = 1; $i <= 6; $i++) {
+                    echo "<td>"; // Open the TD
+
+                    // Check if data is available for the current day
+                    if (isset($dataArray[$i])) {
+                        $price = $ft_sel_py['worker_position_price'];
+                        $dateString = $dataArray[$i]['RecordTime'];
+                        $dateTime = new DateTime($dateString);
+                        $targetTime = new DateTime("05:31:00");
+
+                        if ($ft_sel_py['CanSupervise'] == 1) {
+                            $price = $ft_sel_py['worker_position_price'] + 400;
+                        }
+
+                        if ($dateTime->format('H:i:s') < $targetTime->format('H:i:s')) {
+                            $extra += 300;
+                        }
+
+                        echo $price;
+                        // echo $price . "----------" . $dateString." - ".$i;
+                        $ttl_day += $price;
+                        $dayCount++;
+                    } else {
+                        // No data for the current day, leave the cell blank
+                        echo "&nbsp;";
+                    }
+                    
+                    echo "</td>"; // Close the TD
+                }
+                
                 ?>
+                
                 <td style="background-color:#aede34"><?=$extra?></td>
-                <td style="background-color:#778855"><?=number_format($ttl_day+$extra)?></td>
+                <td style="background-color:#778855"><?=number_format($ttl_day + $extra)?></td>
             </tr>
+
             <?php
             $cnt++;
         }
-    }else{
-        echo "Hello";
+    } else {
+        echo "<center><h2>No Data Found</h2></center>";
     }
-
 }
+
+
+
+
+
+
+
+
+
+
 
 function missedEmployeesBYDate($srchDate,$srchDatTo,$srchCategory){
     $con = parent::connect();
