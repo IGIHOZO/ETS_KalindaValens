@@ -18,6 +18,17 @@
             <span class="nav-link-text">Workers</span>
           </a>
         </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Add Supervisor">
+          <a class="nav-link" href="add-supervisor.php">
+            <i class="fa fa-fw fa-user-plus"></i>
+            <span class="nav-link-text">Add Supervisor</span>
+          </a>
+        </li>
+
+
+
+
+
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Staffs">
           <a class="nav-link" href="staff.php">
           <i class="fa fa-fw fa-user"></i>

@@ -104,24 +104,24 @@ require("menus.php");
                             <td style="text-align: center; padding: 20px; position: relative;">
                                 <img src="<?= $ft_se['worker_photo'] ?>" alt="Employee profile picture" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #3498db;" />
                                 <h5 style=" font-size: 16px; color: #333;"><?= strtoupper($ft_se['worker_fname']) . ' ' . $ft_se['worker_lname'] ?> </h5>
-                                <b><i><label style="margin: 5px 0; color: #666;"><?= $position ?></label></i></b>
+                                <!-- <b><i><label style="margin: 5px 0; color: #666;"><?= $position ?></label></i></b> -->
                             </td>
-                            <td style="width: 160px; padding: 0px 40px 0px 40px; text-align: center; color: #333;font-weight:bold">
+                            <td style="width: 190px; padding: 0px 40px 0px 40px; text-align: center; color: #333;font-weight:bold">
                                 <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-image: url('img/logo.jpeg'); background-size:50%; background-position: center; opacity: 0.1;background-repeat:no-repeat"></div>
 
                             <span>
                             <p style="font-size: 14px; font-weight: bold;"><b><h3><?= $ft_se['worker_unid'] ?></h3></b></p>
                                 <p style="margin: 10px 0; font-size: 12px;">
-                                    <i class="fa fa-phone-alt" style="color: #3498db; margin-right: 5px;"></i> +25<?= $ft_se['worker_phone'] ?>
+                                    <i class="fa fa-phone" style="color: #3498db; margin-right: 5px;"></i> <br> +25<?= $ft_se['worker_phone'] ?>
                                 </p>
-                                <p style="font-size: 12px;">
-                                    <i class="fa fa-envelope" style="color: #3498db; margin-right: 5px;"></i> etskalindaltd@gmail.com
+                                <p style="font-size: 11px;">
+                                    <i class="fa fa-envelope" style="color: #3498db; font-size: 8px;"></i> etskalindaltd@gmail.com
                                 </p>
                                 <!-- <p style="font-size: 12px;">
                                     <i class="fa fa-globe" style="color: #3498db; margin-right: 5px;"></i> etskalindavalens.com
                                 </p> -->
                                 <p style="font-size: 12px;">
-                                    <i class="fa fa-map-marker-alt" style="color: #3498db; margin-right: 5px;"></i> ETS Kalinda Valens, 3VQP+JV, Taba
+                                    <i class="fa fa-map-marker-alt" style="color: #3498db; margin-right: 5px;"></i> ETS Kalinda Valens, 
                                 </p>
                             </span>
                             </td>
@@ -131,6 +131,7 @@ require("menus.php");
                                 var qrcode = new QRCode(document.getElementById("qr-code-<?= $ft_se['worker_id'] ?>"), {
                                     text: "https://seveeen.rw/ets/reception.php?userAttend=1&attendedUser=<?= $ft_se['worker_id'] ?>", // Fixed typo here
                                     width: 140,
+                                    padding:20,
                                     height: 140,
                                     colorDark: "#000000",
                                     correctLevel: QRCode.CorrectLevel.H

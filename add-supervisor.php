@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 @require('main/view.php'); 
 $MainView = new MainView();
@@ -24,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $lname = $_POST["lname"];
         $phone = $_POST["phone"];
         $nid = $_POST["nid"];
-        $supervisor = $_POST["supervisor"];
+        // $supervisor = $_POST["supervisor"];
         $bank = $_POST['bank'];
         $banknumber = $_POST['banknumber'];
         $dob = $_POST['dob'];
@@ -51,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Save data to the database
-        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender, $wrk_position);
+        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $bank, $banknumber, $dob, $gender, $wrk_position);
 
         // Output a message or redirect after processing
         // echo "Form submitted successfully!";
@@ -101,7 +104,7 @@ function generateRandomUniqueId($con) {
     $randomNumber = mt_rand(1, 9999);
 
     // Create the unique ID by combining prefix and the random number
-    $uniqueId = 'ETS-A-' . str_pad($randomNumber, 4, '0', STR_PAD_LEFT);
+    $uniqueId = 'ETS' . str_pad($randomNumber, 4, '0', STR_PAD_LEFT);
 
     // Check if the generated ID already exists in the database
     $checkSql = "SELECT COUNT(*) as count FROM ets_workers WHERE worker_unid = :worker_unid";
@@ -118,7 +121,7 @@ function generateRandomUniqueId($con) {
     return $uniqueId;
 }
 
-function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender, $wrk_position) {
+function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $bank, $banknumber, $dob, $gender, $wrk_position) {
     try {
         // Validate and sanitize input parameters
         $fname = filter_var($fname, FILTER_SANITIZE_STRING);
@@ -126,7 +129,7 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $phone = filter_var($phone, FILTER_SANITIZE_STRING);
         $nid = filter_var($nid, FILTER_SANITIZE_STRING);
         $ppicture = filter_var($ppicture, FILTER_SANITIZE_STRING);
-        $supervisor = filter_var($supervisor, FILTER_SANITIZE_STRING);
+        // $supervisor = filter_var($supervisor, FILTER_SANITIZE_STRING);
         $bank = filter_var($bank, FILTER_SANITIZE_STRING);
         $banknumber = filter_var($banknumber, FILTER_SANITIZE_STRING);
         $dob = filter_var($dob, FILTER_SANITIZE_STRING);
@@ -135,8 +138,8 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
 
 
         // Perform the SQL query to insert data into the database
-        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, supervisor, worker_category, worker_unid, Bank, BankNumber, DoB, Gender, worker_position)
-              VALUES (:fname, :lname, :phone, :nid, :ppicture, :supervisor, :worker_category, :worker_unid, :Bank, :BankNumber, :DoB, :Gender, :wrk_position)";
+        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, worker_category, worker_unid, Bank, BankNumber, DoB, Gender, worker_position, CanSupervise)
+              VALUES (:fname, :lname, :phone, :nid, :ppicture, :worker_category, :worker_unid, :Bank, :BankNumber, :DoB, :Gender, :wrk_position, 1)";
         $worker_category = 3;
 
         // Generate a random unique ID
@@ -148,7 +151,7 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
         $stmt->bindParam(':phone', $phone);
         $stmt->bindParam(':nid', $nid);
         $stmt->bindParam(':ppicture', $ppicture);
-        $stmt->bindParam(':supervisor', $supervisor);
+        // $stmt->bindParam(':supervisor', 1);
         $stmt->bindParam(':worker_category', $worker_category);
         $stmt->bindParam(':worker_unid', $worker_unid);
         $stmt->bindParam(':Bank', $bank);
@@ -183,7 +186,6 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $supervis
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
-  <meta name="author" content="">
   <link rel="icon" type="image/x-icon" href="img/logo.ico">
   <title>ETS - Attendance Portal</title>
   <!-- Bootstrap core CSS-->
@@ -228,7 +230,7 @@ require("menus.php");
         <li class="breadcrumb-item">
           <a href="#">Home</a>
         </li>
-        <li class="breadcrumb-item active">Add new Worker</li>
+        <li class="breadcrumb-item active">Add new Supervisor</li>
 
         <a href="supervisor.php" style="float: right;" class="btn btn-danger"><b>Assign New Supervisor</b></a>
       </ol>
@@ -294,43 +296,26 @@ require("menus.php");
                             <input type="text" class="form-control" placeholder="Bank Account Number" name="banknumber" required>
                         </div>
                     </div>
-                    <div class="mb-3 row">
-                        <label for="supervisor" class="col-sm-4 col-form-label font-weight-bold">Supervisor:</label>
-                        <div class="col-sm-8">
-                            <select name="supervisor" class="form-control" required>
-                                <option value="">Select Supervisor</option>
-                                <?php
-                                $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers WHERE ets_workers.worker_status=1 AND 
-                                ets_workers.CanSupervise=1 AND ets_workers.worker_category=3");
-                                $sel_super->execute();
-                                if ($sel_super->rowCount() >= 1) {
-                                    while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
-                                        $usr_id = $ft_super['worker_id'];
-                                        echo "<option value='" . $usr_id . "'>" . $ft_super['worker_fname'] . " " . $ft_super['worker_lname'] . "</option>";
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="col-md-4">
                   <div class="mb-3 row">
                           <label for="bankaccount" class="col-sm-4 col-form-label font-weight-bold">Position:</label>
                           <div class="col-sm-8">
-                              <select name="wrk_position" class="form-control" required>
+                              <select name="wrk_position" class="form-control" required style="font-weight:bolder;pointer-events: none;background-color: #f0f0f0;color: #888;">
                                   <option value="">Select Position</option>
                                   <?php
-                                  $sel_super = $con->prepare("SELECT * FROM ets_worker_position WHERE ets_worker_position.worker_position_status=1 AND ets_worker_position.worker_position_name<>'Supervisor'");
+                                  $sel_super = $con->prepare("SELECT * FROM ets_worker_position WHERE ets_worker_position.worker_position_status=1 AND ets_worker_position.worker_position_name='Supervisor'");
                                   $sel_super->execute();
                                   if ($sel_super->rowCount() >= 1) {
                                       while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
                                           $usr_id = $ft_super['worker_position_id'];
-                                          echo "<option value='" . $usr_id . "'>" . $ft_super['worker_position_name'] . "</option>";
+                                          echo "<option value='" . $usr_id . "' selected>" . $ft_super['worker_position_name'] . "</option>";
                                       }
                                   }
                                   ?>
                               </select>
+                              
                           </div>
                       </div>
                     <div class="mb-3 row">
@@ -364,7 +349,7 @@ require("menus.php");
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
-          <i class="fa fa-table"></i> Available Workers    <button style="float:right;" class="btn btn-primary"  onclick="ExportToExcel('xlsx')">Download</button></div>
+          <i class="fa fa-table"></i> Available Supervisors    <button style="float:right;" class="btn btn-primary"  onclick="ExportToExcel('xlsx')">Download</button></div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-bordered" id="tbl_exporttable_to_xls" width="100%" cellspacing="0">
@@ -376,14 +361,14 @@ require("menus.php");
                   <th>Phone</th>
                   <th>UNIQUE-ID</th>
                   <th>Category</th>
-                  <th>Supervisor</th>
+                  <!--<th>Supervisor</th>-->
                   <th>Age</th>
                   <th>Gender</th>
                 </tr>
               </thead>
               <?php 
               $sel = $con->prepare("SELECT * FROM ets_workers,ets_worker_position WHERE ets_workers.worker_category=3 AND ets_worker_position.worker_position_id=ets_workers.worker_position
-               AND ets_workers.worker_status=1 ORDER BY ets_workers.worker_id DESC");
+               AND ets_workers.worker_status=1 AND ets_workers.CanSupervise=1 ORDER BY ets_workers.worker_id DESC");
               $sel->execute();
               if ($sel->rowCount()>=1) {
                 $cnt = 1;
@@ -396,7 +381,6 @@ require("menus.php");
                     <td>   <?=$ft_se['worker_phone']?>  </td>
                     <td>   <?=$ft_se['worker_unid']?>  </td>
                     <td>   <?=$MainView->WorkerCategory($ft_se['worker_id'])?>  </td>
-                    <td>   <?=$MainView->WorkerSupervisor($ft_se['supervisor'])?>  </td>
                     <td>   <?=$MainView->ageFromDate($ft_se['DoB'])?>  </td>
                     <td>   <?=$ft_se['Gender']?>  </td>
                   </tr>
@@ -419,7 +403,7 @@ require("menus.php");
                   <th>Phone</th>
                   <th>UNIQUE-ID</th>
                   <th>Category</th>
-                  <th>Supervisor</th>
+                  <!--<th>Supervisor</th>-->
                   <th>Age</th>
                   <th>Gender</th>
                 </tr>
