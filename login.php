@@ -43,7 +43,7 @@
 
     .logo-container {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 0px;
     }
 
     .logo-container img {
@@ -79,11 +79,11 @@
       font-size: 24px;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 0px;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 0px;
     }
 
     .form-check-label {
@@ -119,7 +119,7 @@
       <div class="logo-container">
         <img src="img/logo.jpeg" alt="Company Logo">
       </div>
-      <div class="card-header">Login</div>
+      <div class="card-header">Sign In</div>
       <div id="respp"></div>
       <div class="card-body">
         <form>
@@ -144,6 +144,16 @@
           <a class="d-block small" href="#">Forgot Password?</a>
         </div>
       </div>
+      <div class="text-center mt-3">
+          <p>
+            <div class="copyright">
+              © Copyright <strong>ETS Kalinda</strong>. All Rights Reserved
+            </div>
+            <div class="credits">
+              Designed by <a href="https://seveeen.rw/" target="_blank">Seveeen</a>
+            </div>
+          </p>
+        </div>
     </div>
 
   </div>

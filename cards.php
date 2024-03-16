@@ -245,6 +245,18 @@ function checkTime(i) {
 startTime();
 </script>
   </div>
+  <footer>
+  <div class="text-center mt-3" style="color:aliceblue;">
+          <p style="margin-top:-10px">
+            <div class="copyright">
+              © Copyright <strong>ETS Kalinda</strong>. All Rights Reserved
+            </div>
+            <div class="credits">
+              Designed by <a href="https://seveeen.rw/" target="_blank">Seveeen</a>
+            </div>
+          </p>
+        </div>
+  </footer>
 </body>
 
 </html>
