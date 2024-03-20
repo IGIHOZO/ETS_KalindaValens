@@ -364,6 +364,8 @@ require("menus.php");
                   <!--<th>Supervisor</th>-->
                   <th>Age</th>
                   <th>Gender</th>
+                  <th></th>
+
                 </tr>
               </thead>
               <?php 
@@ -373,6 +375,7 @@ require("menus.php");
               if ($sel->rowCount()>=1) {
                 $cnt = 1;
                 while ($ft_se = $sel->fetch(PDO::FETCH_ASSOC)) {
+                  $userid = $ft_se['worker_id'];
                   ?>
                   <tr>
                     <td>  <?=$cnt.". "?>  </td>
@@ -383,6 +386,10 @@ require("menus.php");
                     <td>   <?=$MainView->WorkerCategory($ft_se['worker_id'])?>  </td>
                     <td>   <?=$MainView->ageFromDate($ft_se['DoB'])?>  </td>
                     <td>   <?=$ft_se['Gender']?>  </td>
+                    <td>  
+                      <button class="btn btn-link" style="color: red; cursor: pointer;" onclick="return deleteWorker(<?=$userid?>);"> <i class="fa fa-fw fa-trash"></i> </button>
+                      <button class="btn btn-link" style="color: blue; cursor: pointer;" onclick="return updateSupervisor(<?=$userid?>);"> <i class="fa fa-fw fa-edit"></i> </button>
+                    </td>
                   </tr>
                   <?php
                   $cnt++;
@@ -406,6 +413,8 @@ require("menus.php");
                   <!--<th>Supervisor</th>-->
                   <th>Age</th>
                   <th>Gender</th>
+                  <th></th>
+
                 </tr>
               </tfoot>
               <tbody>
@@ -509,5 +518,28 @@ function ExportToExcel(type, fn, dl) {
         </div>
   </footer>
 </body>
-
+<script>
+function deleteWorker(userId) {
+    if (confirm("Are you sure you want to delete this worker?")) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'main/main.php', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    window.location.reload();
+                } else {
+                    alert("Failed to delete worker. Please try again later.");
+                }
+            }
+        };
+        xhr.send("userId=" + userId + "&deleteWorker=true");
+    }
+    return false;
+}
+function updateSupervisor(userId){
+  window.location = "update-supervisor.php?userId=" + userId;
+}
+</script>
 </html>

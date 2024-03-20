@@ -1143,6 +1143,115 @@ public function ageFromDate($dob)       //==================================== r
     return $age;
 }
 
+public function getFName($worker_id) {
+    try {
+        $con = parent::connect();
+        $sel = $con->prepare("SELECT worker_fname FROM ets_workers WHERE worker_id = :worker_id");
+        $sel->bindParam(':worker_id', $worker_id, PDO::PARAM_INT);
+        $sel->execute();
+
+        if ($sel->rowCount() >= 1) {
+            $fname = $sel->fetchColumn();
+        } else {
+            $fname = '';
+        }
+        return $fname;
+    } catch (PDOException $e) {
+        return '';
+    }
+}
+public function getLName($worker_id) {
+    try {
+        $con = parent::connect();
+        $sel = $con->prepare("SELECT worker_lname FROM ets_workers WHERE worker_id = :worker_id");
+        $sel->bindParam(':worker_id', $worker_id, PDO::PARAM_INT);
+        $sel->execute();
+
+        if ($sel->rowCount() >= 1) {
+            $fname = $sel->fetchColumn();
+        } else {
+            $fname = '';
+        }
+        return $fname;
+    } catch (PDOException $e) {
+        return '';
+    }
+}
+public function getPhone($worker_id) {
+    try {
+        $con = parent::connect();
+        $sel = $con->prepare("SELECT worker_phone FROM ets_workers WHERE worker_id = :worker_id");
+        $sel->bindParam(':worker_id', $worker_id, PDO::PARAM_INT);
+        $sel->execute();
+
+        if ($sel->rowCount() >= 1) {
+            $fname = $sel->fetchColumn();
+        } else {
+            $fname = '';
+        }
+        return $fname;
+    } catch (PDOException $e) {
+        return '';
+    }
+}
+
+public function getNID($worker_id) {
+    try {
+        $con = parent::connect();
+        $sel = $con->prepare("SELECT nid FROM ets_workers WHERE worker_id = :worker_id");
+        $sel->bindParam(':worker_id', $worker_id, PDO::PARAM_INT);
+        $sel->execute();
+
+        if ($sel->rowCount() >= 1) {
+            $fname = $sel->fetchColumn();
+        } else {
+            $fname = '';
+        }
+        return $fname;
+    } catch (PDOException $e) {
+        return '';
+    }
+}
+
+
+public function getBankNumber($worker_id) {
+    try {
+        $con = parent::connect();
+        $sel = $con->prepare("SELECT BankNumber FROM ets_workers WHERE worker_id = :worker_id");
+        $sel->bindParam(':worker_id', $worker_id, PDO::PARAM_INT);
+        $sel->execute();
+
+        if ($sel->rowCount() >= 1) {
+            $fname = $sel->fetchColumn();
+        } else {
+            $fname = '';
+        }
+        return $fname;
+    } catch (PDOException $e) {
+        return '';
+    }
+}
+
+public function getDoB($worker_id) {
+    try {
+        $con = parent::connect();
+        $sel = $con->prepare("SELECT DoB FROM ets_workers WHERE worker_id = :worker_id");
+        $sel->bindParam(':worker_id', $worker_id, PDO::PARAM_INT);
+        $sel->execute();
+
+        if ($sel->rowCount() >= 1) {
+            $dob = $sel->fetchColumn();
+            // Convert the date string to the desired format
+            $formatted_dob = date('Y-m-d', strtotime($dob));
+            return $formatted_dob;
+        } else {
+            return ''; // Return empty string if no date of birth found
+        }
+    } catch (PDOException $e) {
+        return ''; // Return empty string on database error
+    }
+}
+
 
 
 

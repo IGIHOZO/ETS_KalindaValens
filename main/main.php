@@ -177,7 +177,7 @@ You are therefore requested to keep time.');
 /**
  * ====================================== MAIN OPERATIONS
  */
-class MainOpoerations extends DbConnectt
+class MainOperations extends DbConnectt
 {
     public function MaxmumAllowedLeaves()
     {
@@ -1277,7 +1277,7 @@ public function saveAchievement($goal,$achievement)
 
 public function saveLeaveRange($range)
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['worker_id'];
     $con = parent::connect();
     $ins = $con->prepare("INSERT INTO leave_range(RangeDetails,UserId) VALUES('$range','$user')");
     $ok = $ins->execute();
@@ -1285,6 +1285,116 @@ public function saveLeaveRange($range)
         echo "success";
     }else{
         echo "failed";
+    }
+}
+
+public function changePassword($current, $new)
+{
+    // Check if user is logged in
+    if (!isset($_SESSION['worker_id'])) {
+        echo json_encode(array("success" => false, "message" => "User not logged in."));
+        return;
+    }
+
+    // Get user ID from session
+    $user = $_SESSION['worker_id'];
+
+    try {
+        // Establish database connection
+        $con = parent::connect();
+
+        // Prepare and execute query to verify current password
+        $check = $con->prepare("SELECT worker_password FROM ets_workers WHERE worker_id = :user");
+        $check->bindParam(':user', $user, PDO::PARAM_INT);
+        $check->execute();
+        $row = $check->fetch(PDO::FETCH_ASSOC);
+
+        // Check if current password matches the one stored in the database
+        $encr_current = md5($current);
+        if ($encr_current !== $row['worker_password']) {
+            echo json_encode(array("success" => false, "message" => "Current password is incorrect."));
+            return;
+        }
+
+        // Prepare and execute the update query
+        $encr_new = md5($new);
+        $ins = $con->prepare("UPDATE ets_workers SET worker_password = :new WHERE worker_id = :user");
+        $ins->bindParam(':new', $encr_new, PDO::PARAM_STR);
+        $ins->bindParam(':user', $user, PDO::PARAM_INT);
+        $ok = $ins->execute();
+
+        // Check if the update was successful
+        if ($ok) {
+            echo json_encode(array("success" => true, "message" => "Password changed successfully!"));
+        } else {
+            echo json_encode(array("success" => false, "message" => "Failed to change password."));
+        }
+    } catch (PDOException $e) {
+        // Handle database errors
+        echo json_encode(array("success" => false, "message" => $e->getMessage()));
+    }
+}
+
+public function updateProfile($fname, $lname, $phone)
+{
+    if (!isset($_SESSION['worker_id'])) {
+        echo json_encode(array("success" => false, "message" => "User not logged in."));
+        return;
+    }
+    $user = $_SESSION['worker_id'];
+    try {
+        $con = parent::connect();
+        $checkStmt = $con->prepare("SELECT COUNT(*) FROM ets_workers WHERE worker_phone = :phone AND worker_id != :user");
+        $checkStmt->bindParam(':phone', $phone, PDO::PARAM_STR);
+        $checkStmt->bindParam(':user', $user, PDO::PARAM_INT);
+        $checkStmt->execute();
+        $count = $checkStmt->fetchColumn();
+        if ($count > 0) {
+            echo json_encode(array("success" => false, "message" => "Phone number is already assigned to another worker."));
+            return;
+        }
+        $updateStmt = $con->prepare("UPDATE ets_workers SET worker_fname = :fname, worker_lname = :lname, worker_phone = :phone WHERE worker_id = :user");
+        $updateStmt->bindParam(':fname', $fname, PDO::PARAM_STR);
+        $updateStmt->bindParam(':lname', $lname, PDO::PARAM_STR);
+        $updateStmt->bindParam(':phone', $phone, PDO::PARAM_STR);
+        $updateStmt->bindParam(':user', $user, PDO::PARAM_INT);
+        $updateStmt->execute();
+        if ($updateStmt->rowCount() > 0) {
+            // Update session variables
+            $_SESSION['worker_fname'] = $fname;
+            $_SESSION['worker_lname'] = $lname;
+            $_SESSION['worker_phone'] = $phone;
+            echo json_encode(array("success" => true, "message" => "Profile updated successfully!"));
+        } else {
+            echo json_encode(array("success" => false, "message" => "No changes made to the profile."));
+        }
+    } catch (PDOException $e) {
+        echo json_encode(array("success" => false, "message" => $e->getMessage()));
+    }
+}
+
+public function deleteWorker($worker)
+{
+    // Check if user is logged in
+    if (!isset($_SESSION['worker_id'])) {
+        echo json_encode(array("success" => false, "message" => "User not logged in."));
+        return;
+    }
+
+    $user = $_SESSION['worker_id'];
+
+    try {
+        $con = parent::connect();
+        $ins = $con->prepare("UPDATE ets_workers SET worker_status = 2 WHERE worker_id = :worker");
+        $ins->bindParam(':worker', $worker, PDO::PARAM_INT);
+        $ok = $ins->execute();
+        if ($ok) {
+            echo json_encode(array("success" => true, "message" => "Worker deleted successfully."));
+        } else {
+            echo json_encode(array("success" => false, "message" => "Failed to delete worker."));
+        }
+    } catch (PDOException $e) {
+        echo json_encode(array("success" => false, "message" => $e->getMessage()));
     }
 }
 
@@ -1316,52 +1426,71 @@ public function saveLeaveRange($range)
 
 
 
+
+
+
 }
 
-$MainOpoerations = new MainOpoerations();
+$MainOperations = new MainOperations();
 
 if (isset($_GET['login'])) {
-    $MainOpoerations->login($_GET['email'],$_GET['password']);
+    $MainOperations->login($_GET['email'],$_GET['password']);
 }elseif (isset($_GET['scan_card'])) {
-    $MainOpoerations->scan_card($_GET['content']);
+    $MainOperations->scan_card($_GET['content']);
     // echo"<script>alert('Hello')</script>";
 }elseif (isset($_GET['print_card'])) {
-    $MainOpoerations->print_card($_GET['contenttt']);
+    $MainOperations->print_card($_GET['contenttt']);
 }elseif (isset($_GET['print_qr'])) {
-    $MainOpoerations->print_qr($_GET['contenttt']);
+    $MainOperations->print_qr($_GET['contenttt']);
 }elseif (isset($_GET['savelfid'])) {
-    $MainOpoerations->saveLfid($_GET['userCode'],$_GET['lfid']);
+    $MainOperations->saveLfid($_GET['userCode'],$_GET['lfid']);
 }elseif (isset($_GET['searchAtt'])) {
-    $MainOpoerations->searchAttendanceByDateAndCategory($_GET['srchDate'],$_GET['srchCategory'],$_GET['srchDateTo']);
+    $MainOperations->searchAttendanceByDateAndCategory($_GET['srchDate'],$_GET['srchCategory'],$_GET['srchDateTo']);
 }elseif (isset($_GET['missedEmployeesBYDate'])) {
-    $MainOpoerations->missedEmployeesBYDate($_GET['srchDate'],$_GET['srchDateTo'],$_GET['srchCategory']);
+    $MainOperations->missedEmployeesBYDate($_GET['srchDate'],$_GET['srchDateTo'],$_GET['srchCategory']);
 }elseif (isset($_GET['saveLeaveRequest'])) {
-    $MainOpoerations->saveLeaveRequest($_GET['dateFrom'],$_GET['dateTo'],$_GET['days'],$_GET['leaveType'],$_GET['supervisor']);
+    $MainOperations->saveLeaveRequest($_GET['dateFrom'],$_GET['dateTo'],$_GET['days'],$_GET['leaveType'],$_GET['supervisor']);
 }elseif (isset($_GET['ApproveLeave'])) {
-    $MainOpoerations->ApproveLeave($_GET['user'],$_GET['leave']);
+    $MainOperations->ApproveLeave($_GET['user'],$_GET['leave']);
 }elseif (isset($_GET['RejectLeave'])) {
-    $MainOpoerations->RejectLeave($_GET['user'],$_GET['leave'],$_GET['reason']);
+    $MainOperations->RejectLeave($_GET['user'],$_GET['leave'],$_GET['reason']);
 }elseif (isset($_GET['PendingLeave'])) {
-    $MainOpoerations->PendingLeave($_GET['user'],$_GET['leave']);
+    $MainOperations->PendingLeave($_GET['user'],$_GET['leave']);
 }elseif (isset($_GET['saveGoal'])) {
-    $MainOpoerations->saveGoal($_GET['goalname'],$_GET['goaldetails']);
+    $MainOperations->saveGoal($_GET['goalname'],$_GET['goaldetails']);
 }elseif (isset($_GET['PublishGoal'])) {
-    $MainOpoerations->PublishGoal($_GET['goal']);
+    $MainOperations->PublishGoal($_GET['goal']);
 }elseif (isset($_GET['UnpublishGoal'])) {
-    $MainOpoerations->UnpublishGoal($_GET['goal']);
+    $MainOperations->UnpublishGoal($_GET['goal']);
 }elseif (isset($_GET['DeleteGoal'])) {
-    $MainOpoerations->DeleteGoal($_GET['goal']);
+    $MainOperations->DeleteGoal($_GET['goal']);
 }elseif (isset($_GET['saveGoalNew'])) {
-    $MainOpoerations->saveGoalNew($_GET['Umuhigo'],$_GET['UmuhigoName'],$_GET['UmuhigoDetails'],$_GET['UmuhigoOwner']);
+    $MainOperations->saveGoalNew($_GET['Umuhigo'],$_GET['UmuhigoName'],$_GET['UmuhigoDetails'],$_GET['UmuhigoOwner']);
 }elseif (isset($_GET['assignUmuhigo'])) {
-    $MainOpoerations->assignUmuhigo($_GET['goal'],$_GET['toAssign']);
+    $MainOperations->assignUmuhigo($_GET['goal'],$_GET['toAssign']);
 }elseif (isset($_GET['saveAchievement'])) {
-    $MainOpoerations->saveAchievement($_GET['myGoals'],$_GET['goalAchievement']);
+    $MainOperations->saveAchievement($_GET['myGoals'],$_GET['goalAchievement']);
 }elseif (isset($_GET['saveLeaveRange'])) {
-    $MainOpoerations->saveLeaveRange($_GET['range']);
+    $MainOperations->saveLeaveRange($_GET['range']);
 }elseif (isset($_GET['searchPayroll'])) {
-    $MainOpoerations->searchPayroll($_GET['srchDate'],$_GET['srchDateTo'],$_GET['srchSupervisor']);
+    $MainOperations->searchPayroll($_GET['srchDate'],$_GET['srchDateTo'],$_GET['srchSupervisor']);
+}elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['newPassword'])) {
+    $currentPassword = $_POST['currentPassword'];
+    $newPassword = $_POST['newPassword'];
+    $MainOperations->changePassword($currentPassword, $newPassword);
+}elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['updated_firstName'])) {
+    $fname = isset($_POST['updated_firstName']) ? htmlspecialchars($_POST['updated_firstName']) : '';
+    $lname = isset($_POST['updated_lastName']) ? htmlspecialchars($_POST['updated_lastName']) : '';
+    $phone = isset($_POST['updated_phoneNumber']) ? htmlspecialchars($_POST['updated_phoneNumber']) : '';
+
+    $MainOperations->updateProfile($fname, $lname, $phone);
+}elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteWorker'])) {
+    $userId = isset($_POST['userId']) ? htmlspecialchars($_POST['userId']) : '';
+
+    $MainOperations->deleteWorker($userId);
 }
+
+
 
 
 ?>  

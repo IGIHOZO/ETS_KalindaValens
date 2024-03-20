@@ -15,156 +15,114 @@ if ($MainView->StaffPositionName()!='Receptionist') {
 }
 ?>
 <?php
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if the form is submitted
-    if (isset($_POST["reg_worker"])) {
-        // Retrieve form data
+    if (isset($_POST["upd_worker"])) {
+        $userId = $_GET['userId']; 
         $fname = $_POST["fname"];
         $lname = $_POST["lname"];
         $phone = $_POST["phone"];
         $nid = $_POST["nid"];
-        $staffposition = $_POST["staffposition"];
+        $supervisor = $_POST["supervisor"];
+        $bank = $_POST['bank'];
+        $banknumber = $_POST['banknumber'];
+        $dob = $_POST['dob'];
+        $gender = $_POST['gender'];
+        $wrk_position = $_POST['wrk_position'];
 
-        // File upload handling
         $ppicture = uploadImage();
-        $bank = $_POST["bank"];
-        $account_number = $_POST["banknumber"];
-        $dob = $_POST["dob"];
-        $gender = $_POST["gender"];
 
-        // Perform further processing or validation as needed
 
-        // Example: Validate phone number format
         if (!preg_match("/^[0-9]{10}$/", $phone)) {
             echo "<script>alert('Invalid phone number format.');</script>";
             exit;
         }
 
-        // Example: Validate NID length
         if (strlen($nid) !== 16) {
             echo "<script>alert('NID must be 16 characters long.');</script>";
             exit;
         }
 
-        // Save data to the database          
-        saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $staffposition,$bank,$account_number,$dob,$gender);
 
-        // Output a message or redirect after processing
-        // echo "Form submitted successfully!";
+        if ($ppicture !== false) {
+            if (updateWorker($con,$userId, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender, $wrk_position)) {
+                echo "<script>windo.location='workers.php'</script>";
+            } else {
+                echo "<div class='alert alert-danger' role='alert'>Failed to update worker information. Please try again.</div>";
+            }
+        } else {
+            echo "<div class='alert alert-danger' role='alert'>Failed to upload worker image. Please check the file format and size.</div>";
+        }
+    }
+}
+
+function updateWorker($con,$userId, $fname, $lname, $phone, $nid, $ppicture, $supervisor, $bank, $banknumber, $dob, $gender, $wrk_position) {
+    try {
+        $updateStmt = $con->prepare("UPDATE ets_workers 
+                                    SET worker_fname = :fname, 
+                                        worker_lname = :lname, 
+                                        worker_phone = :phone, 
+                                        nid = :nid, 
+                                        worker_photo = :ppicture, 
+                                        supervisor = :supervisor, 
+                                        Bank = :bank, 
+                                        BankNumber = :banknumber, 
+                                        DoB = :dob, 
+                                        Gender = :gender, 
+                                        worker_position = :wrk_position 
+                                    WHERE worker_id = :userId");
+        $updateStmt->bindParam(':fname', $fname);
+        $updateStmt->bindParam(':lname', $lname);
+        $updateStmt->bindParam(':phone', $phone);
+        $updateStmt->bindParam(':nid', $nid);
+        $updateStmt->bindParam(':ppicture', $ppicture);
+        $updateStmt->bindParam(':supervisor', $supervisor);
+        $updateStmt->bindParam(':bank', $bank);
+        $updateStmt->bindParam(':banknumber', $banknumber);
+        $updateStmt->bindParam(':dob', $dob);
+        $updateStmt->bindParam(':gender', $gender);
+        $updateStmt->bindParam(':wrk_position', $wrk_position);
+        $updateStmt->bindParam(':userId', $userId);
+        $updateStmt->execute();
+
+        if ($updateStmt->rowCount() > 0) {
+            return true; 
+        } else {
+            return false; 
+        }
+    } catch (PDOException $e) {
+        return false;
     }
 }
 
 function uploadImage() {
-    $targetDir = "img/staffs/"; // Specify your target directory
+    $targetDir = "img/workers/";
+
     $imageFileType = strtolower(pathinfo($_FILES["ppicture"]["name"], PATHINFO_EXTENSION));
 
-    // Encrypt the file name
     $encryptedFileName = hash('sha256', uniqid() . $_FILES["ppicture"]["name"]) . '.' . $imageFileType;
     $targetFileEncrypted = $targetDir . $encryptedFileName;
 
-    // Check if image file is a valid image
     $check = getimagesize($_FILES["ppicture"]["tmp_name"]);
     if ($check === false) {
-        echo "<script>alert('File is not a valid image.');</script>";
-        exit;
+        return false; 
     }
 
-    // Check file size
     if ($_FILES["ppicture"]["size"] > 5000000) {
-        echo "<script>alert('Sorry, your file is too large.');</script>";
-        exit;
+        return false; 
     }
 
-    // Allow certain file formats
     $allowedFormats = ["jpg", "jpeg", "png", "gif"];
     if (!in_array($imageFileType, $allowedFormats)) {
-        echo "<script>alert('Sorry, only JPG, JPEG, PNG, and GIF files are allowed.');</script>";
-        exit;
+        return false; 
     }
 
-    // Move the uploaded file to the target directory with an encrypted filename
     if (move_uploaded_file($_FILES["ppicture"]["tmp_name"], $targetFileEncrypted)) {
-        // echo "The file " . htmlspecialchars(basename($encryptedFileName)) . " has been uploaded.";
-        return $targetFileEncrypted;
+        return $targetFileEncrypted; 
     } else {
-        echo "<script>alert('Sorry, there was an error uploading your file.');</script>";
-        exit;
+        return false; 
     }
 }
 
-function generateRandomUniqueId($con) {
-    // Generate a random number between 100000 and 999999
-    $randomNumber = mt_rand(1, 9999);
-
-    // Create the unique ID by combining prefix and the random number
-    $uniqueId = 'ETS-A-' . str_pad($randomNumber, 4, '0', STR_PAD_LEFT);
-
-    // Check if the generated ID already exists in the database
-    $checkSql = "SELECT COUNT(*) as count FROM ets_workers WHERE worker_unid = :worker_unid";
-    $checkStmt = $con->prepare($checkSql);
-    $checkStmt->bindParam(':worker_unid', $uniqueId);
-    $checkStmt->execute();
-    $row = $checkStmt->fetch(PDO::FETCH_ASSOC);
-
-    // If the ID already exists, generate a new one
-    if ($row['count'] > 0) {
-        return generateRandomUniqueId($con);
-    }
-
-    return $uniqueId;
-}
-
-function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture,$staffposition,$bank,$account_number,$dob,$gender) {
-    try {
-        // Validate and sanitize input parameters
-        $fname = filter_var($fname, FILTER_SANITIZE_STRING);
-        $lname = filter_var($lname, FILTER_SANITIZE_STRING);
-        $phone = filter_var($phone, FILTER_SANITIZE_STRING);
-        $nid = filter_var($nid, FILTER_SANITIZE_STRING);
-        $ppicture = filter_var($ppicture, FILTER_SANITIZE_STRING);
-        $bank = filter_var($bank, FILTER_SANITIZE_STRING);
-        $account_number = filter_var($account_number, FILTER_SANITIZE_STRING);
-        $dob = filter_var($dob, FILTER_SANITIZE_STRING);
-        $gender = filter_var($gender, FILTER_SANITIZE_STRING);
-
-        // Perform the SQL query to insert data into the database
-        $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, worker_category, worker_unid, worker_position,Bank, BankNumber, DoB, Gender)
-              VALUES (:fname, :lname, :phone, :nid, :ppicture, :worker_category, :worker_unid, :staff_position, :bank, :account_number, :dob, :gender)";
-        $worker_category = 1;
-
-        // Generate a random unique ID
-        $worker_unid = generateRandomUniqueId($con);
-
-        $stmt = $con->prepare($sql);
-        $stmt->bindParam(':fname', $fname);
-        $stmt->bindParam(':lname', $lname);
-        $stmt->bindParam(':phone', $phone);
-        $stmt->bindParam(':nid', $nid);
-        $stmt->bindParam(':ppicture', $ppicture);
-        // $stmt->bindParam(':supervisor', $supervisor);
-        $stmt->bindParam(':worker_category', $worker_category);
-        $stmt->bindParam(':worker_unid', $worker_unid);
-        $stmt->bindParam(':staff_position', $staffposition);
-        $stmt->bindParam(':bank', $bank);
-        $stmt->bindParam(':account_number', $account_number);
-        $stmt->bindParam(':dob', $dob);
-        $stmt->bindParam(':gender', $gender);
-
-        // Execute the insert query
-        $ok_in = $stmt->execute();
-
-        if ($ok_in) {
-            // echo "Record added to database successfully. Unique ID: " . $worker_unid;
-        } else {
-            // Display or log more information about the failure
-            echo "<script>alert('Failed to add record to the database. Details: " . implode(", ", $stmt->errorInfo())."')</script>";
-        }
-
-    } catch (PDOException $e) {
-        echo "<script>alert('Database Error: " . $e->getMessage()."')</script>";
-    }
-}
 ?>
 
 
@@ -222,37 +180,38 @@ require("menus.php");
         <li class="breadcrumb-item">
           <a href="#">Home</a>
         </li>
-        <li class="breadcrumb-item active">Add new Staffs</li>
-        <!-- </li><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1> -->
+        <li class="breadcrumb-item active">Update Worker</li>
 
+        <a href="supervisor.php" style="float: right;" class="btn btn-danger"><b>Assign New Supervisor</b></a>
       </ol>
       <!-- Icon Cards-->
       <form method="post" action="" enctype="multipart/form-data">
+        
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
                     <div class="mb-3 row">
                         <label for="fname" class="col-sm-4 col-form-label font-weight-bold">First Name:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" placeholder="First Name" name="fname" required>
+                            <input type="text" class="form-control" placeholder="First Name" name="fname" value="<?=$MainView->getFName($_GET['userId'])?>" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="lname" class="col-sm-4 col-form-label font-weight-bold">Last Name:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" placeholder="Last Name" name="lname" required>
+                            <input type="text" class="form-control" placeholder="Last Name" name="lname" value="<?=$MainView->getLName($_GET['userId'])?>" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="phone" class="col-sm-4 col-form-label font-weight-bold">Phone:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" placeholder="078......." name="phone" maxlength="10" required>
+                            <input type="text" class="form-control" placeholder="078......." name="phone" maxlength="10" value="<?=$MainView->getPhone($_GET['userId'])?>" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <label for="nid" class="col-sm-4 col-form-label font-weight-bold">NID:</label>
                         <div class="col-sm-8">
-                            <input type="number" class="form-control" placeholder="(16 characters)" name="nid" maxlength="16" required>
+                            <input type="number" class="form-control" placeholder="(16 characters)" name="nid" maxlength="16"  value="<?=$MainView->getNID($_GET['userId'])?>" required>
                         </div>
                     </div>
                 </div>
@@ -285,35 +244,52 @@ require("menus.php");
                     <div class="mb-3 row">
                         <label for="banknumber" class="col-sm-4 col-form-label font-weight-bold">Account:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" placeholder="Bank Account Number" name="banknumber" required>
+                            <input type="text" class="form-control" placeholder="Bank Account Number" name="banknumber" value="<?=$MainView->getBankNumber($_GET['userId'])?>" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="staffposition" class="col-sm-4 col-form-label font-weight-bold">Position:</label>
+                        <label for="supervisor" class="col-sm-4 col-form-label font-weight-bold">Supervisor:</label>
                         <div class="col-sm-8">
-                            <select name="staffposition" class="form-control" required>
-                                <option value="">Select Position</option>
+                            <select name="supervisor" class="form-control" required>
+                                <option value="">Select Supervisor</option>
                                 <?php
-                                $sel_super = $con->prepare("SELECT * FROM ets_staff_position WHERE ets_staff_position.PositionStatus=1 ORDER BY ets_staff_position.PositionName ASC");
+                                $sel_super = $con->prepare("SELECT ets_workers.* FROM ets_workers WHERE ets_workers.worker_status=1 AND 
+                                ets_workers.CanSupervise=1 AND ets_workers.worker_category=3");
                                 $sel_super->execute();
                                 if ($sel_super->rowCount() >= 1) {
                                     while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
-                                        $usr_id = $ft_super['PositionID'];
-                                        echo "<option value='" . $usr_id . "'>" . $ft_super['PositionName'] . "</option>";
+                                        $usr_id = $ft_super['worker_id'];
+                                        echo "<option value='" . $usr_id . "'>" . $ft_super['worker_fname'] . " " . $ft_super['worker_lname'] . "</option>";
                                     }
                                 }
                                 ?>
                             </select>
                         </div>
                     </div>
-
                 </div>
-
                 <div class="col-md-4">
+                  <div class="mb-3 row">
+                          <label for="bankaccount" class="col-sm-4 col-form-label font-weight-bold">Position:</label>
+                          <div class="col-sm-8">
+                              <select name="wrk_position" class="form-control" required>
+                                  <option value="">Select Position</option>
+                                  <?php
+                                  $sel_super = $con->prepare("SELECT * FROM ets_worker_position WHERE ets_worker_position.worker_position_status=1 AND ets_worker_position.worker_position_name<>'Supervisor'");
+                                  $sel_super->execute();
+                                  if ($sel_super->rowCount() >= 1) {
+                                      while ($ft_super = $sel_super->fetch(PDO::FETCH_ASSOC)) {
+                                          $usr_id = $ft_super['worker_position_id'];
+                                          echo "<option value='" . $usr_id . "'>" . $ft_super['worker_position_name'] . "</option>";
+                                      }
+                                  }
+                                  ?>
+                              </select>
+                          </div>
+                      </div>
                     <div class="mb-3 row">
                         <label for="dob" class="col-sm-4 col-form-label font-weight-bold">Birth:</label>
                         <div class="col-sm-8">
-                            <input type="date" class="form-control" name="dob" required>
+                        <input type="date" class="form-control" name="dob" value="<?= date('Y-m-d', strtotime($MainView->getDoB($_GET['userId']))) ?>" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -327,87 +303,18 @@ require("menus.php");
                     </div>
                     <div class="mb-3 row">
                         <div class="col-sm-8 offset-sm-4">
-                            <button type="submit" name="reg_worker" class="btn btn-success">Submit</button>
+                            <button type="submit" name="upd_worker" class="btn btn-success">Submit</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
       </form>
-      <!-- Example DataTables Card-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-table"></i> Available Staffs    <button style="float:right;" class="btn btn-primary"  onclick="ExportToExcel('xlsx')">Download</button></div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered" id="tbl_exporttable_to_xls" width="100%" cellspacing="0">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Position</th>
-                  <th>Phone</th>
-                  <th>UNIQUE-ID</th>
-                  <th>Category</th>
-                  <th>Picture</th>
-                  <th></th>
 
-                </tr>
-              </thead>
-              <?php 
-              $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_category=1 AND ets_workers.worker_status=1");
-              $sel->execute();
-              if ($sel->rowCount()>=1) {
-                $cnt = 1;
-                while ($ft_se = $sel->fetch(PDO::FETCH_ASSOC)) {
-                  $userid = $ft_se['worker_id'];
 
-                  ?>
-                  <tr>
-                    <td>  <?=$cnt.". "?>  </td>
-                    <td>  <?=strtoupper($ft_se['worker_fname']).' '.$ft_se['worker_lname']?>   </td>
-                    <td>  <?=$MainView->WorkerPositionName($ft_se['worker_id'])?>   </td>
-                    <td>   <?=$ft_se['worker_phone']?>  </td>
-                    <td>   <?=$ft_se['worker_unid']?>  </td>
-                    <td>   <?=$MainView->WorkerCategory($ft_se['worker_id'])?>  </td>
-                    <td>   <img src="<?=$ft_se['worker_photo']?>" alt="<?=$ft_se['worker_unid']?>" style="witdt: 60px;height:80px">  </td>
-                    <td>  
-                      <button class="btn btn-link" style="color: red; cursor: pointer;" onclick="return deleteWorker(<?=$userid?>);"> <i class="fa fa-fw fa-trash"></i> </button>
-                      <!-- <button class="btn btn-link" style="color: blue; cursor: pointer;" onclick="return updateStaff(<?=$userid?>);"> <i class="fa fa-fw fa-edit"></i> </button> -->
-                    </td>
-                  </tr>
-                  <?php
-                  $cnt++;
-                }
-              }else{
-                ?>
-                <tr>
-                  <td colspan="7">  <center>No data found ...</center>  </td>
-                </tr>
-                <?php
-              }
-              ?>
-              <tfoot>
-              <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Position</th>
-                  <th>Phone</th>
-                  <th>UNIQUE-ID</th>
-                  <th>Category</th>
-                  <th>Picture</th>
-                  <th></th>
 
-                </tr>
-              </tfoot>
-              <tbody>
-                <?=$MainView->todays_attendance_detailed();?>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-footer small text-muted">Updated now</div>
-      </div>
+
+
 
 
     </div>
@@ -474,7 +381,7 @@ function ExportToExcel(type, fn, dl) {
        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
        return dl ?
          XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }):
-         XLSX.writeFile(wb, fn || ('DailyAttendance.' + (type || 'xlsx')));
+         XLSX.writeFile(wb, fn || ('WorkersReport.' + (type || 'xlsx')));
     }
 
     document.addEventListener('keydown', function (e) {
@@ -501,30 +408,6 @@ function ExportToExcel(type, fn, dl) {
         </div>
   </footer>
 </body>
-<script>
-function deleteWorker(userId) {
-    if (confirm("Are you sure you want to delete this worker?")) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'main/main.php', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var response = JSON.parse(xhr.responseText);
-                if (response.success) {
-                    window.location.reload();
-                } else {
-                    alert("Failed to delete worker. Please try again later.");
-                }
-            }
-        };
-        xhr.send("userId=" + userId + "&deleteWorker=true");
-    }
-    return false;
-}
 
 
-function updateStaff(userId){
-  window.location = "update-staff.php?userId=" + userId;
-}
-</script>
 </html>

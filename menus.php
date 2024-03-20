@@ -99,9 +99,38 @@
             </div>
           </form>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
-            <i class="fa fa-fw fa-sign-out"></i>Logout</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle mr-lg-2" id="alertsDropdown" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-fw fa-user-circle"></i>
+          </a>
+          <div style="margin-left: -200px;width: 260px !important;" class="dropdown-menu" aria-labelledby="alertsDropdown">
+            <h6 class="dropdown-header">Settings</h6>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="update-pro.php">
+              <span class="text-success">
+                <strong style="color: rgb(43, 28, 8);">
+                  <i class="fa fa-fw fa-user"></i>Profile</strong>
+              </span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="cpwd.php">
+              <span class="text-success">
+                <strong style="color: rgb(43, 28, 8);">
+                  <i class="fa fa-fw fa-key"></i>Change Password</strong>
+              </span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="logout.php">
+              <span class="text-success">
+                <strong style="color: rgb(43, 28, 8);">
+                <a href="logout.php" style="color: rgb(43, 28, 8);margin-left:20px">
+                  <i class="fa fa-fw fa-sign-out"></i>Logout
+                </a>  
+              </strong>
+              </span>
+            </a>
+          </div>
         </li>
       </ul>
     </div>
