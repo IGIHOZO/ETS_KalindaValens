@@ -182,7 +182,7 @@ require("menus.php");
               </div>
               <div class="mr-5"><?=$MainView->todays_attendance()?> Attended Today</div>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
+            <a class="card-footer text-white clearfix small z-1" href="report.php">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
@@ -198,7 +198,7 @@ require("menus.php");
               </div>
               <div class="mr-5">0 Todays's Early Risers!</div>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
+            <a class="card-footer text-white clearfix small z-1" href="report.php">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
@@ -214,7 +214,7 @@ require("menus.php");
               </div>
               <div class="mr-5"><?=$MainView->todays_right_arrival()?> Todays Right Arrivals!</div>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
+            <a class="card-footer text-white clearfix small z-1" href="report.php">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>
@@ -230,7 +230,7 @@ require("menus.php");
               </div>
               <div class="mr-5"><?=$MainView->todays_lates()?> Lates Today !</div>
             </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
+            <a class="card-footer text-white clearfix small z-1" href="report.php">
               <span class="float-left">View Details</span>
               <span class="float-right">
                 <i class="fa fa-angle-right"></i>

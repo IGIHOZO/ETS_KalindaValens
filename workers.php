@@ -101,7 +101,7 @@ function generateRandomUniqueId($con) {
     $randomNumber = mt_rand(1, 9999);
 
     // Create the unique ID by combining prefix and the random number
-    $uniqueId = 'ETS-A-' . str_pad($randomNumber, 4, '0', STR_PAD_LEFT);
+    $uniqueId = 'ETS' . str_pad($randomNumber, 4, '0', STR_PAD_LEFT);
 
     // Check if the generated ID already exists in the database
     $checkSql = "SELECT COUNT(*) as count FROM ets_workers WHERE worker_unid = :worker_unid";
