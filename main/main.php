@@ -740,61 +740,57 @@ function generalObservation($in_time,$out_time){
 
 }
 
-function searchAttendanceByDateAndCategory($srchDate,$srchCategory,$srchDateTo){
 
-    $begin = (string)$srchDate;
-    $begin = new DateTime($begin);
-    $end = (string)$srchDateTo;
-    $end = new DateTime($end);
-     $interval = DateInterval::createFromDateString('1 day');
-     // var_dump($interval);
-    $period = new DatePeriod($begin, $interval, $end);
-    $cnt =1;
-    foreach ($period as $dt) {
-        $dattte = $dt->format("Y-m-d");
-        if ($srchDate=='' OR $srchCategory=='' OR $srchDateTo=='') {
-            echo "null";
-        }else{
-            $arr = [];
-            $con = parent::connect();
-            $sel = $con->prepare("SELECT * FROM ets_attendance_records,ets_workers,ets_workers_category WHERE ets_workers.worker_id =ets_attendance_records.RecordUser 
-            AND ets_workers_category.category_id=ets_workers.worker_category AND 
-             ets_attendance_records.RecordTime LIKE '$dattte%' ORDER BY ets_attendance_records.RecordTime DESC");
-            $sel->execute();
-            if ($sel->rowCount()>=1) {
-                
-                while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
-                    $user = $ft_sel['worker_id'];
-                    if (in_array($user, $arr)) {
-                        continue;
-                    }else{
-                        array_push($arr, $user);
-                        
-                        $datetime = $ft_sel['RecordTime'];
-                     ?>
-                        <tr>
-                            <td><?=$cnt++?></td> 
-                            <td><?=substr($ft_sel['RecordTime'], 0,10)?></td> 
-                            <td><?=strtoupper($ft_sel['worker_fname'])." ".$ft_sel['worker_lname']?></td> 
-                            <td><?=$ft_sel['category_name']?></td> 
-                           <td style="font-weight:bold;font-style: italic;"><?=$this->shift_in($user,$dattte);?></td>
-                            <!-- <td><center><?=$this->observationIn($ft_sel['RecordTime'])?></center></td> -->
-                            <td style="font-weight:bold;font-style: italic;"><?=$this->shift_out($user,$dattte);?></td>
-                            <!-- <td><?=$this->observationOut($user,$this->shift_out($user,$dattte))?></td> -->
-                            <td style="font-weight: bolder;"><?=$this->generalObservation($this->shift_in($user,$dattte),$this->shift_out($user,$dattte));?></td>
-                        </tr>
-                        <?php
+function searchAttendanceByDateAndCategory($srchDate, $srchCategory, $srchDateTo) {
+    try {
+        $begin = new DateTime($srchDate);
+        $end = new DateTime($srchDateTo);
+        $end->modify('+1 day'); // Add one day to include records for the end date
+        $interval = new DateInterval('P1D'); // Create a DateInterval for one day
+        $period = new DatePeriod($begin, $interval, $end);
+        $cnt = 1;
+        
+        foreach ($period as $dt) {
+            $dattte = $dt->format("Y-m-d");
+            if ($srchDate == '' || $srchCategory == '' || $srchDateTo == '') {
+                echo "null";
+            } else {
+                $arr = [];
+                $con = parent::connect();
+                $sel = $con->prepare("SELECT * FROM ets_attendance_records, ets_workers, ets_workers_category WHERE ets_workers.worker_id = ets_attendance_records.RecordUser AND ets_workers_category.category_id = ets_workers.worker_category AND ets_attendance_records.RecordTime LIKE '$dattte%' ORDER BY ets_attendance_records.RecordTime DESC");
+                $sel->execute();
+                if ($sel->rowCount() >= 1) {
+                    while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
+                        $user = $ft_sel['worker_id'];
+                        if (in_array($user, $arr)) {
+                            continue;
+                        } else {
+                            array_push($arr, $user);
+                            $datetime = $ft_sel['RecordTime'];
+                            ?>
+                            <tr>
+                                <td><?= $cnt++ ?></td>
+                                <td><?= substr($ft_sel['RecordTime'], 0, 10) ?></td>
+                                <td><?= strtoupper($ft_sel['worker_fname']) . " " . $ft_sel['worker_lname'] ?></td>
+                                <td><?= $ft_sel['category_name'] ?></td>
+                                <td style="font-weight:bold;font-style: italic;"><?= $this->shift_in($user, $dattte); ?></td>
+                                <td style="font-weight:bold;font-style: italic;"><?= $this->shift_out($user, $dattte); ?></td>
+                                <td style="font-weight: bolder;"><?= $this->generalObservation($this->shift_in($user, $dattte), $this->shift_out($user, $dattte)); ?></td>
+                            </tr>
+                            <?php
+                        }
                     }
+                } else {
+                    continue;
                 }
-            }else{
-                continue;
-                // echo "<table class='table table-bordered'><tr> <td colspan='9'> <center style='font-weight:bolder'>No data found ...</center> </td> </tr></table>";
             }
         }
-
+    } catch (PDOException $e) {
+        echo "<script>alert('Database Error: " . $e->getMessage() . "')</script>";
     }
-
 }
+
+
 
 
 
