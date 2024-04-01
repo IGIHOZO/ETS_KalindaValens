@@ -123,19 +123,6 @@ function generateRandomUniqueId($con) {
 
 function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $bank, $banknumber, $dob, $gender, $wrk_position) {
     try {
-        // Validate and sanitize input parameters
-        $fname = filter_var($fname, FILTER_SANITIZE_STRING);
-        $lname = filter_var($lname, FILTER_SANITIZE_STRING);
-        $phone = filter_var($phone, FILTER_SANITIZE_STRING);
-        $nid = filter_var($nid, FILTER_SANITIZE_STRING);
-        $ppicture = filter_var($ppicture, FILTER_SANITIZE_STRING);
-        // $supervisor = filter_var($supervisor, FILTER_SANITIZE_STRING);
-        $bank = filter_var($bank, FILTER_SANITIZE_STRING);
-        $banknumber = filter_var($banknumber, FILTER_SANITIZE_STRING);
-        $dob = filter_var($dob, FILTER_SANITIZE_STRING);
-        $gender = filter_var($gender, FILTER_SANITIZE_STRING);
-        $wrk_position = filter_var($wrk_position, FILTER_SANITIZE_STRING);
-
 
         // Perform the SQL query to insert data into the database
         $sql = "INSERT INTO ets_workers (worker_fname, worker_lname, worker_phone, nid, worker_photo, worker_category, worker_unid, Bank, BankNumber, DoB, Gender, worker_position, CanSupervise)
@@ -164,7 +151,15 @@ function saveToDatabase($con, $fname, $lname, $phone, $nid, $ppicture, $bank, $b
         $ok_in = $stmt->execute();
 
         if ($ok_in) {
-            // echo "Record added to database successfully. Unique ID: " . $worker_unid;
+            $supervisor = $con->lastInsertId();
+            $upd = $con->prepare("UPDATE ets_workers SET ets_workers.supervisor='$supervisor' where ets_workers.worker_id='$supervisor'");
+            $upd_ok = $upd->execute();
+            if ($upd_ok) {
+              // echo "Record added to database successfully. Unique ID: " . $worker_unid;
+            }else{
+               echo "<script>alert('Failed to update record to the database. Details: " . implode(", ", $upd->errorInfo())."')</script>";
+            }
+            
         } else {
             // Display or log more information about the failure
             echo "<script>alert('Failed to add record to the database. Details: " . implode(", ", $stmt->errorInfo())."')</script>";

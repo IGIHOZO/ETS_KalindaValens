@@ -1,8 +1,8 @@
 <?php
 session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 date_default_timezone_set('Africa/Kigali');
 
 require("view.php");
@@ -229,9 +229,10 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 <?php
 }else{
 
-        $MorningTime = "05:31:00";
-        $lateTime = "06:05:00";
+        $MorningTime = "06:21:00";
+        $lateTime = "06:31:00";
         $TimeStatus = '-';
+        
         
         if (time() <= strtotime($MorningTime)) {  // on or above morning time (early)
             $TimeStatus = "<h1 style='color:#fcdf03;font-weight:bolder'>Earn Extra</h1>";
@@ -823,7 +824,7 @@ function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
                 INNER JOIN ets_workers ON ets_attendance_records.RecordUser = ets_workers.worker_id
                 WHERE ets_workers.worker_id = '$uid'
                 AND DATE(ets_attendance_records.RecordTime) BETWEEN '$srchDate' AND '$srchDateTo'
-                AND TIME(ets_attendance_records.RecordTime) <= '06:05:00'
+                AND TIME(ets_attendance_records.RecordTime) <= '06:31:00'
                 AND NOT EXISTS (
                     SELECT 1
                     FROM ets_attendance_records as r2

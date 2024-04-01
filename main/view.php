@@ -1,5 +1,6 @@
       <?php
     @session_start();
+    date_default_timezone_set('Africa/Kigali');
 
     // $dbname = 'mpjusdko_seveeen_web';
     // $user = 'mpjusdko';
@@ -92,7 +93,13 @@ class MainView extends DbConnect
 
     function todays_lates(){
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) AND substr(ets_attendance_records.RecordTime, 12,2)>='07' ORDER BY ets_attendance_records.RecordTime DESC");
+        $sel = $con->prepare("SELECT *
+        FROM ets_attendance_records
+        WHERE 
+            CAST(ets_attendance_records.RecordTime AS TIME) >= '06:30:00'
+            AND DATE(ets_attendance_records.RecordTime) = CURDATE()
+        ORDER BY ets_attendance_records.RecordTime DESC;
+        ");
         $sel->execute();
         $cnt = 0;
         if ($sel->rowCount()>=1) {
