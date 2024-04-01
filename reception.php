@@ -42,7 +42,7 @@ if ($MainView->StaffPositionName()!='Receptionist') {
   font-family:arial black;
   font-size:70px;
   background-image: 
-    linear-gradient(to right, #000000,#999999,#aaaaaa,#aaaaaa,#000000,#999999,#aaaaaa, #aaaaaa); 
+    linear-gradient(to left, #000000,#999999,#aaaaaa,#aaaaaa,#000000,#999999,#aaaaaa, #aaaaaa); 
   -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;  
   animation: rainbow-animation 500s linear infinite;
@@ -65,12 +65,7 @@ require("menus.php");
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Home</a>
-        </li>
-        <li class="breadcrumb-item active">My Overall Report</li>
         </li><h1 id="txt" style="font-weight: bolder;float: right;color: red;text-align: right;">Time Here ...</h1>
-
       </ol>
 
       <div class="card mb-3">
