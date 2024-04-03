@@ -196,7 +196,7 @@ require("menus.php");
               <div class="card-body-icon">
                 <i class="fa fa-fw fa-list"></i>
               </div>
-              <div class="mr-5">0 Todays's Early Risers!</div>
+              <div class="mr-5"><?=$MainView->early_attendance()?> Todays's Early Risers!</div>
             </div>
             <a class="card-footer text-white clearfix small z-1" href="#">
               <span class="float-left">View Details</span>

@@ -69,54 +69,131 @@ class MainView extends DbConnect
         // $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
         return $cnt;
     }
-
-    function todays_right_arrival(){
+    function todays_right_arrival() {
         $con = parent::connect();
-        $sel = $con->prepare("SELECT * FROM ets_attendance_records WHERE CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE) AND substr(ets_attendance_records.RecordTime, 12,2)<'07' ORDER BY ets_attendance_records.RecordTime DESC");
+        
+        $dayOfWeek = date("l");
+    
+        if ($dayOfWeek === "Saturday") {
+            $arrivalTime = "5:00:00";
+        } else {
+            $arrivalTime = "6:35:00";
+        }
+    
+        $sel = $con->prepare("SELECT *
+                              FROM ets_attendance_records 
+                              WHERE CAST(ets_attendance_records.RecordTime AS TIME) <= :arrivalTime 
+                              AND CAST(ets_attendance_records.RecordTime AS DATE) = CAST( CURDATE() AS DATE) 
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM ets_attendance_records AS e
+                                  WHERE CAST(e.RecordTime AS TIME) < :earlyTime
+                                  AND e.RecordUser = ets_attendance_records.RecordUser
+                                  AND DATE(e.RecordTime) = CURDATE()
+                              )
+                              ORDER BY ets_attendance_records.RecordTime DESC");
+        $sel->bindParam(':arrivalTime', $arrivalTime);
+        
+        // Bind earlyTime parameter to exclude early attendance records
+        if ($dayOfWeek === "Saturday") {
+            $earlyTime = "04:50:00";
+        } else {
+            $earlyTime = "06:10:00";
+        }
+        $sel->bindParam(':earlyTime', $earlyTime);
+        
         $sel->execute();
+        
         $cnt = 0;
-        if ($sel->rowCount()>=1) {
+        if ($sel->rowCount() >= 1) {
             $arr = [];
             while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
                 $user = $ft_sel['RecordUser'];
                 if (in_array($user, $arr)) {
                     continue;
-                }else{
+                } else {
                     array_push($arr, $user);
                     $cnt++;
                 }
             }
         }
-        // $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
         return $cnt;
     }
+    
+    
 
     function todays_lates(){
         $con = parent::connect();
+        
+        $dayOfWeek = date("l");
+    
+        if ($dayOfWeek === "Saturday") {
+            $lateTime = "05:00:00";
+        } else {
+            $lateTime = "6:35:00";
+        }
+        
         $sel = $con->prepare("SELECT *
-        FROM ets_attendance_records
-        WHERE 
-            CAST(ets_attendance_records.RecordTime AS TIME) >= '06:30:00'
-            AND DATE(ets_attendance_records.RecordTime) = CURDATE()
-        ORDER BY ets_attendance_records.RecordTime DESC;
-        ");
+                              FROM ets_attendance_records
+                              WHERE CAST(ets_attendance_records.RecordTime AS TIME) > :lateTime
+                              AND DATE(ets_attendance_records.RecordTime) = CURDATE()
+                              ORDER BY ets_attendance_records.RecordTime DESC");
+        $sel->bindParam(':lateTime', $lateTime);
         $sel->execute();
+        
         $cnt = 0;
-        if ($sel->rowCount()>=1) {
+        if ($sel->rowCount() >= 1) {
             $arr = [];
             while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
                 $user = $ft_sel['RecordUser'];
                 if (in_array($user, $arr)) {
                     continue;
-                }else{
+                } else {
                     array_push($arr, $user);
                     $cnt++;
                 }
             }
         }
-        // $ft_sel = $sel->fetch(PDO::FETCH_ASSOC);
         return $cnt;
     }
+    
+    function early_attendance() {
+        $con = parent::connect();
+        
+        $dayOfWeek = date("l");
+    
+        if ($dayOfWeek === "Saturday") {
+            $earlyTime = "04:50:00";
+        } else {
+            $earlyTime = "06:10:00";
+        }
+        
+        $sel = $con->prepare("SELECT *
+                              FROM ets_attendance_records
+                              WHERE CAST(ets_attendance_records.RecordTime AS TIME) < :earlyTime
+                              AND DATE(ets_attendance_records.RecordTime) = CURDATE()
+                              ORDER BY ets_attendance_records.RecordTime DESC");
+        $sel->bindParam(':earlyTime', $earlyTime);
+        $sel->execute();
+        
+        $cnt = 0;
+        if ($sel->rowCount() >= 1) {
+            $arr = [];
+            while ($ft_sel = $sel->fetch(PDO::FETCH_ASSOC)) {
+                $user = $ft_sel['RecordUser'];
+                if (in_array($user, $arr)) {
+                    continue;
+                } else {
+                    array_push($arr, $user);
+                    $cnt++;
+                }
+            }
+        }
+        return $cnt;
+    }
+    
+    
+
     function all_cards(){
         $con = parent::connect();
         $sel = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_status=1 ORDER BY ets_workers.worker_fname, ets_workers.worker_lname ASC");

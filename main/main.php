@@ -92,7 +92,7 @@ public function CheckAmINLeave($user)        //=================================
   $status2 = 0;
   $all = 0;
 
-  // $user = $_SESSION['utb_att_user_id'];
+  // $user = $_SESSION['etskalinda_att_user_id'];
   $sel = $con->prepare("SELECT * FROM leaves WHERE leaves.LeaveEmployee='$user' AND leaves.LeaveStatus=1");
   $sel->execute();
   if ($sel->rowCount()>=1) {
@@ -123,7 +123,7 @@ function sendSmsAttendanceLatnessOnce($phone,$name){        // SENDING LATENESS 
     $data
     =
     array(
-    "sender"=>'UTB',
+    "sender"=>'etskalinda',
     "recipients"=>"+250".$phone,
     "message"=>'Late Coming Notification : 
     
@@ -138,10 +138,10 @@ You are therefore requested to keep time.');
     =
     http_build_query
     ($data);
-    // $username="utb"; 
-    // $password="utb.tech";
+    // $username="etskalinda"; 
+    // $password="etskalinda.tech";
         $username="ewsewew"; 
-    $password="utb.wewewe";
+    $password="etskalinda.wewewe";
     $ch
     =
     curl_init();
@@ -221,26 +221,31 @@ class MainOperations extends DbConnectt
 $MyFunctions = new MyFunctions();
 $att_phone = $MyFunctions->UserPhone($user_id);
 $att_name = $MyFunctions->UserName($user_id);
-if ($MyFunctions->CheckAmINLeave($user_id)) {
-                ?><script type="text/javascript">
-                    $("#respp").css("background-color","yellow");
-                </script>
-                <h1 style="font-family: Palatino Linotype;color: #fff;"><span style="color:black"><?= $MyFunctions->UserName($user_id)?> <span style="color:red"> is in Leave  </span>.</h1>
-                <?php
-}else{
 
-        $MorningTime = "06:21:00";
-        $lateTime = "06:31:00";
+        $dayOfWeek = date("l");
+
+        $MorningTime = "6:35:00";
+        $lateTime = "6:10:00";
+
+        if ($dayOfWeek === "Saturday") {
+            $MorningTime = "4:50:00";
+            $lateTime = "5:00:00";
+        }        
+        
         $TimeStatus = '-';
         
-        
-        if (time() <= strtotime($MorningTime)) {  // on or above morning time (early)
+        $currentTime = date("H:i:s");  // Get current time in HH:MM:SS format
+
+        if ($currentTime <= $MorningTime) {  // on or above morning time (early)
             $TimeStatus = "<h1 style='color:#fcdf03;font-weight:bolder'>Earn Extra</h1>";
-        } elseif (time() <= strtotime($lateTime)) {   // on time
+        } elseif ($currentTime <= $lateTime) {   // on time
             $TimeStatus = "<h1 style='color:blue;font-weight:bolder'>On-Time</h1>";
         } else {   // late
             $TimeStatus = "<h1 style='color:red;font-weight:bolder'>Late</h1>";
         }
+        
+
+        
     
         $con = parent::connect();
         $user = $con->prepare("SELECT * FROM ets_workers WHERE ets_workers.worker_id='$user_id' OR ets_workers.worker_unid='$user_id'");
@@ -253,22 +258,12 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
             }else{
                 $position = $MainView->WorkerPositionName($ft_user['worker_id']);
             }
-            $dept = $ft_user['worker_id'];
             $attender = $ft_user['worker_id'];
             $attender_photo = $ft_user['worker_photo'];
             $passport = $attender_photo;
 
             $firstname = strtoupper($ft_user['worker_fname']);
-            $staff_dept = "";
-            switch ($dept) {
-                case 0:
-                    $staff_dept = "Administration Staff";
-                    break;
-                
-                default:
-                    $staff_dept = "Teaching Staff";
-                    break;
-            }
+
         $sel_att = $con->prepare("SELECT * FROM ets_attendance_records,ets_workers WHERE ets_workers.worker_id=ets_attendance_records.RecordUser AND (ets_attendance_records.RecordUser='$user_id' OR ets_workers.worker_unid='$user_id') AND CAST(ets_attendance_records.RecordTime AS DATE) = CAST( curdate() AS DATE)");
         $sel_att->execute();
         $time_now = (int)date('H');
@@ -384,7 +379,6 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 break;
         }
 
-}
     }
 
 
@@ -427,7 +421,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                             <tr>
                                 <td style="font-size: 25px;color: #cfcf30;font-weight: bold;">&nbsp;&nbsp;&nbsp;ID <ss style="font-weight: lighter;">NO</ss>:</td>
                                 <td style="float:left;color: #eee;font-size: 20px;font-weight: bold;margin-top: 15px;">
-                                    <label>UTB-<?=$filled_int = sprintf("%04d", $ft_sel['UserId']) ?></label>
+                                    <label>etskalinda-<?=$filled_int = sprintf("%04d", $ft_sel['UserId']) ?></label>
                                 </td>
                             </tr>
                         </table>
@@ -435,7 +429,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 </td>
                 <td><?php 
 
-                    $vv = "https://utb.ac.rw/attendance/scan.php?content=".$ft_sel['UserId'];
+                    $vv = "https://etskalinda.com/attendance/scan.php?content=".$ft_sel['UserId'];
                 ?>
                     <input id="text<?=$user_photo?>" style="display: none;" type="text" value="<?=$vv?>" style="width:80%" /><br />
                     <table id="qr_print<?=$user_photo?>">
@@ -449,14 +443,14 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                                 <p style="color:black;font-style: italic;"><br>
                                     <center>
                                         <i style="font-size: 10.5px;font-weight: bolder;">
-                                        This card is the property of UTB if found, 
+                                        This card is the property of etskalinda if found, 
                                         please <br> return it to the address below:
                                         </i>
                                     <span style="font-size: 12px;">
                                         P.O.BOX:350 Kigali-Rwanda<br>
                                         <b>Tel:</b> (250) 788314252<br>
-                                        <b>Email:</b> info@utb.ac.rw<br>
-                                        <b>Website:</b> www.utb.ac.rw<br>
+                                        <b>Email:</b> info@etskalinda.com<br>
+                                        <b>Website:</b> www.etskalinda.com<br>
                                     </span>
                                         
                                     </center>
@@ -524,7 +518,7 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                 </td>
                 <td><?php 
 
-                    $vv = "https://utb.ac.rw/attendance/scan.php?content=".$ft_sel['UserId'];
+                    $vv = "https://etskalinda.com/attendance/scan.php?content=".$ft_sel['UserId'];
                 ?>
                     <input id="text<?=$user_photo?>" style="display: none;" type="text" value="<?=$vv?>" style="width:80%" /><br />
                     <br><br>
@@ -542,14 +536,14 @@ if ($MyFunctions->CheckAmINLeave($user_id)) {
                                 <p style="color:black;font-style: italic;font-weight: bold;font-family: Arial;"><br>
                                     <center>
                                         <i style="font-size: 14px;font-weight: bolder;font-family: Arial;">
-                                        This card is the property of UTB if found, please<br> 
+                                        This card is the property of etskalinda if found, please<br> 
                                          return it to the address below:<br><br>
                                         </i>
                                     <span style="font-size: 14px;font-weight: bold;font-family: Arial;">
                                         P.O.BOX:350 Kigali-Rwanda<br>
                                         <b>Tel:</b> (+250) 788314252<br>
-                                        <b>Email:</b> info@utb.ac.rw<br>
-                                        <b>Website:</b> www.utb.ac.rw<br>
+                                        <b>Email:</b> info@etskalinda.com<br>
+                                        <b>Website:</b> www.etskalinda.com<br>
                                     </span>
                                         
                                     </center>
@@ -622,7 +616,7 @@ function scan_card_phone($user_id){
                         <h3 style="margin-top: -1%;font-weight: bold;color: #fff;text-align: left;margin-left: 30%;font-size: 12px"><?=$ft_sel['Position']?></h3>
                         <h3 style="margin-top: -2%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 12px">0<?=$ft_sel['Phone']?></h3>
                         <h3 style="margin-top: 0%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 12px"><?=$ft_sel['Email']?></h3>
-                        <h3 style="margin-top: 0%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 12px">UTB-<?=$filled_int = sprintf("%04d", $ft_sel['UserId']) ?></h3>
+                        <h3 style="margin-top: 0%;font-weight: bold;color: #fff;text-align: left;margin-left: 24%;font-size: 12px">etskalinda-<?=$filled_int = sprintf("%04d", $ft_sel['UserId']) ?></h3>
                     </div>
                     </center>
                     <?php
@@ -797,7 +791,6 @@ function searchAttendanceByDateAndCategory($srchDate, $srchCategory, $srchDateTo
 function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
     $MainView = new MainView();
     $supervisorName = $MainView->UserNames($srcSupervisor);
-    // echo "<center id='supervisodNmae'><h4> Puservisor: ".$supervisorName."</h4></center>";
     $con = parent::connect();
     $sel_py = $con->prepare("SELECT * FROM ets_workers, ets_worker_position WHERE ets_workers.supervisor='$srcSupervisor' AND ets_workers.worker_category=3 AND 
     ets_worker_position.worker_position_id=ets_workers.worker_position AND ets_workers.worker_status=1");
@@ -815,22 +808,40 @@ function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
                 <td><?=$ft_sel_py['BankNumber']?></td>
 
                 <?php
-                $sel_cnt = $con->prepare("SELECT ets_attendance_records.*, ets_workers.*
-                FROM ets_attendance_records
-                INNER JOIN ets_workers ON ets_attendance_records.RecordUser = ets_workers.worker_id
-                WHERE ets_workers.worker_id = '$uid'
-                AND DATE(ets_attendance_records.RecordTime) BETWEEN '$srchDate' AND '$srchDateTo'
-                AND TIME(ets_attendance_records.RecordTime) <= '06:31:00'
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM ets_attendance_records as r2
-                    WHERE DATE(r2.RecordTime) = DATE(ets_attendance_records.RecordTime)
-                    AND r2.RecordTime < ets_attendance_records.RecordTime
-                    AND r2.RecordUser = ets_workers.worker_id
-                )
-                GROUP BY DATE(ets_attendance_records.RecordTime);");
-                
-                $sel_cnt->execute();
+        // Get the current day of the week
+        $dayOfWeek = date("l");
+
+        // Default late time
+        $lateTime = new DateTime("6:10:00");
+
+        // If today is Saturday, update the late time
+        if ($dayOfWeek === "Saturday") {
+            $lateTime = new DateTime("5:00:00");
+        }
+
+        // Prepare SQL query
+        $sel_cnt = $con->prepare("SELECT ets_attendance_records.*, ets_workers.*
+                    FROM ets_attendance_records
+                    INNER JOIN ets_workers ON ets_attendance_records.RecordUser = ets_workers.worker_id
+                    WHERE ets_workers.worker_id = :uid
+                    AND DATE(ets_attendance_records.RecordTime) BETWEEN :srchDate AND :srchDateTo
+                    AND TIME(ets_attendance_records.RecordTime) <= :lateTime
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM ets_attendance_records as r2
+                        WHERE DATE(r2.RecordTime) = DATE(ets_attendance_records.RecordTime)
+                        AND r2.RecordTime < ets_attendance_records.RecordTime
+                        AND r2.RecordUser = ets_workers.worker_id
+                    )
+                    GROUP BY DATE(ets_attendance_records.RecordTime);");
+
+        // Bind parameters and execute
+        $late_date = $lateTime->format('H:i:s');
+        $sel_cnt->bindParam(':uid', $uid);
+        $sel_cnt->bindParam(':srchDate', $srchDate);
+        $sel_cnt->bindParam(':srchDateTo', $srchDateTo);
+        $sel_cnt->bindParam(':lateTime', $late_date);
+        $sel_cnt->execute();
                 
                 $ttl_day = 0;
                 $extra = 0;
@@ -854,14 +865,19 @@ function searchPayroll($srchDate, $srchDateTo, $srcSupervisor){
                         $price = $ft_sel_py['worker_position_price'];
                         $dateString = $dataArray[$i]['RecordTime'];
                         $dateTime = new DateTime($dateString);
-                        $targetTime = new DateTime("05:31:00");
+                        $dayOfWeek = date("l");
+                        if ($dayOfWeek === "Saturday") {
+                        $targetTime = new DateTime("4:50:00");
+                        }else{
+                            $targetTime = new DateTime("6:10:00");
+                        }
 
                         if ($ft_sel_py['CanSupervise'] == 1) {
                             $price = $ft_sel_py['worker_position_price'] + 400;
                         }
 
                         if ($dateTime->format('H:i:s') < $targetTime->format('H:i:s')) {
-                            $extra += 300;
+                            $extra = $extra + 300;
                         }
 
                         echo $price;
@@ -957,8 +973,8 @@ function missedEmployeesBYDate($srchDate,$srchDatTo,$srchCategory){
 public function saveLeaveRequest($from,$to,$days,$type,$supervisor)     //======================================= Employee requesting to a Leave
 {
     $con = parent::connect();
-    $user = $_SESSION['utb_att_user_id'];
-    $maax_days = $_SESSION['utb_att_max_leave_days'];
+    $user = $_SESSION['etskalinda_att_user_id'];
+    $maax_days = $_SESSION['etskalinda_att_max_leave_days'];
     $avial = false;
     if (($days<=$maax_days) OR $type!=0) {
         $sel = $con->prepare("SELECT leaves.LeaveRemainig AS rem FROM leaves WHERE leaves.LeaveEmployee='$user' AND leaves.LeaveStatus IN(0,1) ORDER BY leaves.LeaveId DESC LIMIT 1");
@@ -1113,7 +1129,7 @@ public function PendingLeave($user, $leave)         //==========================
 
 public function saveGoal($goalname, $goaldetails)         //========================================= Save Goal
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['etskalinda_att_user_id'];
     $con = parent::connect();
     $sel = $con->prepare("SELECT * FROM imihigo WHERE ImihigoName=? AND ImihigoDetails=? AND ImihogoOwner=? AND ImihogoDescendents=? AND ImihigoType=? AND ImihigoStatus=?");
     $sel->bindValue(1,$goalname);
@@ -1123,7 +1139,7 @@ public function saveGoal($goalname, $goaldetails)         //====================
     $sel->bindValue(5,0);
     $sel->bindValue(6,0);
     if ($sel->rowCount()<=0) {
-        if ($_SESSION['utb_att_position']!='Employee') {
+        if ($_SESSION['etskalinda_att_position']!='Employee') {
             $ins = $con->prepare("INSERT INTO imihigo(ImihigoName,ImihigoDetails,ImihogoOwner,ImihogoDescendents,ImihigoType,ImihigoStatus) VALUES(?,?,?,?,?,?)");
             $ins->bindValue(1,$goalname);
             $ins->bindValue(2,$goaldetails);
@@ -1158,7 +1174,7 @@ public function saveGoal($goalname, $goaldetails)         //====================
 
 public function PublishGoal($goal)         //========================================= Publish Goal
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['etskalinda_att_user_id'];
     $con = parent::connect();
     $ins = $con->prepare("UPDATE imihigo SET ImihigoStatus=1 WHERE imihigo.ImihigoId='$goal'");
     $ok = $ins->execute();
@@ -1172,7 +1188,7 @@ public function PublishGoal($goal)         //===================================
 
 public function UnpublishGoal($goal)         //========================================= Publish Goal
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['etskalinda_att_user_id'];
     $con = parent::connect();
     $ins = $con->prepare("UPDATE imihigo SET ImihigoStatus=0 WHERE imihigo.ImihigoId='$goal'");
     $ok = $ins->execute();
@@ -1186,7 +1202,7 @@ public function UnpublishGoal($goal)         //=================================
 
 public function DeleteGoal($goal)         //========================================= Publish Goal
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['etskalinda_att_user_id'];
     $con = parent::connect();
     $ins = $con->prepare("UPDATE imihigo SET ImihigoStatus=2 WHERE imihigo.ImihigoId='$goal'");
     $ok = $ins->execute();
@@ -1200,7 +1216,7 @@ public function DeleteGoal($goal)         //====================================
 
 public function saveGoalNew($Umuhigo, $UmuhigoName, $UmuhigoDetails, $goaldetails)         //========================================= Save Goal
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['etskalinda_att_user_id'];
     $con = parent::connect();
     $sel = $con->prepare("SELECT * FROM imihigo WHERE ImihigoName=? AND ImihigoDetails=? AND ImihogoOwner=? AND ImihogoDescendents=? AND ImihigoType=? AND ImihigoStatus=?");
     $sel->bindValue(1,$UmuhigoName);
@@ -1210,7 +1226,7 @@ public function saveGoalNew($Umuhigo, $UmuhigoName, $UmuhigoDetails, $goaldetail
     $sel->bindValue(5,1);
     $sel->bindValue(6,0);
     if ($sel->rowCount()<=0) {
-        if ($_SESSION['utb_att_position']!='Employee') {
+        if ($_SESSION['etskalinda_att_position']!='Employee') {
             $ins = $con->prepare("INSERT INTO imihigo(ImihigoName,ImihigoDetails,ImihogoOwner,ImihogoDescendents,ImihigoType,ImihigoStatus) VALUES(?,?,?,?,?,?)");
             $ins->bindValue(1,$UmuhigoName);
             $ins->bindValue(2,$UmuhigoDetails);
@@ -1242,7 +1258,7 @@ public function saveGoalNew($Umuhigo, $UmuhigoName, $UmuhigoDetails, $goaldetail
 }
 public function assignUmuhigo($goal, $toAssign)         //========================================= Assign Goal
 {
-    $user = $_SESSION['utb_att_user_id'];
+    $user = $_SESSION['etskalinda_att_user_id'];
     $con = parent::connect();
     $upd = $con->prepare("UPDATE imihigo SET ImihigoAssignedTo='$toAssign' WHERE ImihigoId='$goal'");
     $ok = $upd->execute();
